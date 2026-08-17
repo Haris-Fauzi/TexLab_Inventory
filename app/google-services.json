@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1028982155822",
+    "project_id": "texlab-inventory",
+    "storage_bucket": "texlab-inventory.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1028982155822:android:4c7e36494a460dbb504dbf",
+        "android_client_info": {
+          "package_name": "com.example.texlabinventory"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1028982155822-2qpa99g9ocqgcpldcsahlttfsh19gl9l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnqNhxPytwVIJwguD_4tAZt0di1fWPQok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1028982155822-2qpa99g9ocqgcpldcsahlttfsh19gl9l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
