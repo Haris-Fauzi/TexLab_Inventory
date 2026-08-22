@@ -27,4 +27,36 @@ class LaptopViewModel(
             _laptopsState.value = result
         }
     }
+
+    fun addLaptop(laptop: Laptop, onResult: (Resource<Boolean>) -> Unit) {
+        viewModelScope.launch {
+            onResult(Resource.Loading)
+            val result = repository.addLaptop(laptop)
+            onResult(result)
+        }
+    }
+
+    fun deleteLaptop(inventoryId: String, onResult: (Resource<Boolean>) -> Unit) {
+        viewModelScope.launch {
+            onResult(Resource.Loading)
+            val result = repository.deleteLaptop(inventoryId)
+            onResult(result)
+            // Refresh list otomatis setelah hapus berhasil
+            if (result is Resource.Success) {
+                fetchLaptops()
+            }
+        }
+    }
+
+    fun updateLaptop(laptop: Laptop, onResult: (Resource<Boolean>) -> Unit) {
+        viewModelScope.launch {
+            onResult(Resource.Loading)
+            val result = repository.updateLaptop(laptop)
+            onResult(result)
+            // Refresh list otomatis setelah update berhasil
+            if (result is Resource.Success) {
+                fetchLaptops()
+            }
+        }
+    }
 }

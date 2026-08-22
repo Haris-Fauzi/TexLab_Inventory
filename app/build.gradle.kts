@@ -43,6 +43,10 @@ android {
             useLegacyPackaging = true
         }
     }
+
+    buildFeatures{
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -93,4 +97,6 @@ dependencies {
 
     // 4. Image Loading Library - Glide (Untuk Load Gambar dari Cloudinary)
     implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }

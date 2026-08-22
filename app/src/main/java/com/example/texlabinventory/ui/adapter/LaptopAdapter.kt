@@ -7,12 +7,17 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.texlabinventory.R
 import com.example.texlabinventory.data.model.Laptop
 
 class LaptopAdapter(
-    private var laptopList: List<Laptop> = emptyList()
+    private var laptopList: List<Laptop> = emptyList(),
+    private val onItemClick: ((Laptop) -> Unit)? = null
 ) : RecyclerView.Adapter<LaptopAdapter.LaptopViewHolder>() {
+
+    // Menyimpan copy list original untuk keperluan pencarian
+    private var fullList: List<Laptop> = emptyList()
 
     class LaptopViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val ivLaptop: ImageView = itemView.findViewById(R.id.ivLaptop)
@@ -52,6 +57,7 @@ class LaptopAdapter(
         if (laptop.image_url.isNotEmpty()) {
             Glide.with(holder.itemView.context)
                 .load(laptop.image_url)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .centerCrop()
                 .placeholder(android.R.drawable.ic_menu_gallery)
                 .error(android.R.drawable.stat_notify_error)
@@ -59,12 +65,40 @@ class LaptopAdapter(
         } else {
             holder.ivLaptop.setImageResource(android.R.drawable.ic_menu_gallery)
         }
+
+        holder.itemView.setOnClickListener {
+            onItemClick?.invoke(laptop)
+        }
+
     }
 
     override fun getItemCount(): Int = laptopList.size
 
     fun updateData(newList: List<Laptop>) {
+        this.fullList = newList
         this.laptopList = newList
         notifyDataSetChanged()
+    }
+
+    // Fungsi untuk memfilter list secara real-time berdasarkan query
+    fun filter(query: String, onEmptyResult: (Boolean) -> Unit) {
+        val filteredList = if (query.isEmpty()) {
+            fullList
+        } else {
+            val lowerCaseQuery = query.lowercase().trim()
+            fullList.filter { laptop ->
+                laptop.inventory_id.lowercase().contains(lowerCaseQuery) ||
+                        laptop.brand.lowercase().contains(lowerCaseQuery) ||
+                        laptop.model.lowercase().contains(lowerCaseQuery) ||
+                        laptop.serial_number.lowercase().contains(lowerCaseQuery) ||
+                        laptop.location.lowercase().contains(lowerCaseQuery)
+            }
+        }
+
+        this.laptopList = filteredList
+        notifyDataSetChanged()
+
+        // Panggil callback untuk memberitahu apakah hasil pencarian kosong
+        onEmptyResult(filteredList.isEmpty())
     }
 }

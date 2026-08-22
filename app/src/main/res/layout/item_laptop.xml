@@ -4,10 +4,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="12dp"
+    android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="6dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="3dp">
+    app:cardCornerRadius="14dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="#1F000000">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,7 +17,7 @@
         android:orientation="horizontal"
         android:padding="12dp">
 
-        <!-- Image Laptop dari Cloudinary -->
+        <!-- Image Laptop -->
         <ImageView
             android:id="@+id/ivLaptop"
             android:layout_width="90dp"
@@ -28,20 +30,20 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="14dp"
             android:orientation="vertical">
 
-            <!-- 1. BARIS ATAS: ID Inventaris (Judul Utama) -->
+            <!-- ID Inventaris -->
             <TextView
                 android:id="@+id/tvInventoryId"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="C001"
-                android:textSize="17sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black" />
+                android:textColor="?attr/colorOnSurface" />
 
-            <!-- 2. BARIS KEDUA: Brand & Model -->
+            <!-- Brand & Model -->
             <TextView
                 android:id="@+id/tvBrandModel"
                 android:layout_width="wrap_content"
@@ -50,9 +52,9 @@
                 android:text="ASUS VIVOBOOK A1404VA"
                 android:textSize="13sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/darker_gray" />
+                android:textColor="?android:attr/textColorSecondary" />
 
-            <!-- 3. BARIS KETIGA: Serial Number (Terpisah di Bawahnya) -->
+            <!-- Serial Number -->
             <TextView
                 android:id="@+id/tvSerialNumber"
                 android:layout_width="wrap_content"
@@ -60,22 +62,24 @@
                 android:layout_marginTop="1dp"
                 android:text="SN: T6N0CV035300238"
                 android:textSize="12sp"
-                android:textColor="@android:color/darker_gray" />
+                android:textColor="?android:attr/textColorSecondary" />
 
-            <!-- 4. BARIS KEEMPAT: Specs Singkat -->
+            <!-- Specs Singkat -->
             <TextView
                 android:id="@+id/tvSpecs"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="INTEL CORE 5 • 8 GB • 512 GB"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textColor="?attr/colorOnSurface" />
 
-            <!-- 5. BARIS KELIMA: Location & Status -->
+            <!-- Location & Status -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <TextView
@@ -85,7 +89,8 @@
                     android:layout_weight="1"
                     android:text="📍 LAB CAD"
                     android:textSize="11sp"
-                    android:textStyle="italic" />
+                    android:textStyle="italic"
+                    android:textColor="?android:attr/textColorSecondary" />
 
                 <TextView
                     android:id="@+id/tvCondition"

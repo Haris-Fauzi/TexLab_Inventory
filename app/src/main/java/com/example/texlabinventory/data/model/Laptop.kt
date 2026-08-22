@@ -2,6 +2,8 @@ package com.example.texlabinventory.data.model
 
 import com.google.firebase.firestore.IgnoreExtraProperties
 
+import java.io.Serializable
+
 @IgnoreExtraProperties
 data class Laptop(
     var inventory_id: String = "",
@@ -17,4 +19,4 @@ data class Laptop(
     var charger_status: String = "",
     var image_url: String = "",
     var specs: Specs = Specs()
-)
+) : Serializable

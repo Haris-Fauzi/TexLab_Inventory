@@ -11,8 +11,8 @@ import kotlin.coroutines.resume
 
 object CloudinaryHelper {
 
-    private const val CLOUD_NAME = "NAMA_CLOUD_ANDA" // Ganti dengan Cloud Name Anda
-    private const val UPLOAD_PRESET = "NAMA_PRESET_ANDA" // Ganti dengan Upload Preset Unsigned Anda
+    private const val CLOUD_NAME = "aayg63qo" // Ganti dengan Cloud Name Anda
+    private const val UPLOAD_PRESET = "TexLab_Inventory" // Ganti dengan Upload Preset Unsigned Anda
 
     private var isInitialized = false
 
