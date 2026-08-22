@@ -37,6 +37,8 @@ class LaptopAdapter(
     override fun onBindViewHolder(holder: LaptopViewHolder, position: Int) {
         val laptop = laptopList[position]
 
+        val firstImageUrl = laptop.image_url.firstOrNull()
+
         // 1. Baris Paling Atas: Kode ID Inventaris
         holder.tvInventoryId.text = laptop.inventory_id
 
@@ -54,15 +56,16 @@ class LaptopAdapter(
         holder.tvCondition.text = laptop.condition
 
         // Gambar dari Cloudinary
-        if (laptop.image_url.isNotEmpty()) {
+        if (!firstImageUrl.isNullOrEmpty()) {
             Glide.with(holder.itemView.context)
-                .load(laptop.image_url)
+                .load(firstImageUrl) // Load URL foto pertama dari List
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .centerCrop()
-                .placeholder(android.R.drawable.ic_menu_gallery)
+                .placeholder(android.R.drawable.ic_menu_gallery) // Gambar default saat loading (jika ada)
                 .error(android.R.drawable.stat_notify_error)
-                .into(holder.ivLaptop)
+                .into(holder.ivLaptop) // Sesuaikan id ImageView kamu di item_laptop.xml
         } else {
+            // Jika laptop belum punya foto, tampilkan gambar placeholder default
             holder.ivLaptop.setImageResource(android.R.drawable.ic_menu_gallery)
         }
 

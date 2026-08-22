@@ -1,17 +1,30 @@
 package com.example.texlabinventory.ui.detail
 
+import android.app.Dialog
 import android.content.Intent
+import android.content.res.Configuration
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import android.view.ViewGroup
+import android.view.Window
+import android.view.WindowManager
+import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.viewpager2.widget.ViewPager2
+import com.example.texlabinventory.R
 import com.example.texlabinventory.data.model.Laptop
 import com.example.texlabinventory.data.utils.Resource
 import com.example.texlabinventory.databinding.ActivityDetailBinding
 import com.example.texlabinventory.ui.AddLaptopActivity
+import com.example.texlabinventory.ui.adapter.ImageSliderAdapter
 import com.example.texlabinventory.ui.viewModel.LaptopViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -29,6 +42,16 @@ class DetailActivity : AppCompatActivity() {
         binding = ActivityDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // 1. Status Bar transparan
+        setupStatusBarTheme()
+
+        // 2. Padding Top menyesuaikan Status Bar
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.setPadding(0, statusBarHeight, 0, 0)
+            insets
+        }
+
         val laptop = intent.getSerializableExtra(EXTRA_LAPTOP) as? Laptop
         if (laptop != null) {
             setupUI(laptop)
@@ -36,8 +59,15 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupStatusBarTheme() {
+        window.statusBarColor = Color.TRANSPARENT
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        val isDarkMode = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        windowInsetsController.isAppearanceLightStatusBars = !isDarkMode
+    }
+
     private fun setupUI(laptop: Laptop) = with(binding) {
-        tvDetailId.text = laptop.inventory_id
+        tvDetailId.text = "ID: ${laptop.inventory_id}"
         tvDetailBrandModel.text = "${laptop.brand} ${laptop.model}"
         tvDetailSN.text = "Serial Number: ${laptop.serial_number}"
         tvDetailLocation.text = "📍 Lokasi: ${laptop.location}"
@@ -47,14 +77,70 @@ class DetailActivity : AppCompatActivity() {
         tvDetailRam.text = "RAM: ${laptop.specs.ram}"
         tvDetailStorage.text = "Penyimpanan: ${laptop.specs.storage}"
 
-        if (laptop.image_url.isNotEmpty()) {
-            Glide.with(this@DetailActivity)
-                .load(laptop.image_url)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .placeholder(android.R.drawable.ic_menu_gallery)
-                .error(android.R.drawable.stat_notify_error)
-                .into(ivDetailLaptop)
+        // Tampilkan Slider Gambar
+        setupImageSlider(laptop.image_url)
+    }
+
+    private fun setupImageSlider(imageUrls: List<String>) {
+        if (imageUrls.isEmpty()) {
+            binding.tvImageIndicator.text = "0/0"
+            return
         }
+
+        val adapter = ImageSliderAdapter(imageUrls) { selectedUrl ->
+            val initialPosition = imageUrls.indexOf(selectedUrl)
+            showZoomImageDialog(imageUrls, if (initialPosition != -1) initialPosition else 0)
+        }
+
+        binding.vpImageSlider.adapter = adapter
+        binding.vpImageSlider.isUserInputEnabled = true
+        binding.tvImageIndicator.text = "1/${imageUrls.size}"
+
+        binding.vpImageSlider.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                binding.tvImageIndicator.text = "${position + 1}/${imageUrls.size}"
+            }
+        })
+    }
+
+    // Dialog Zoom Fullscreen menggunakan Layout full_image.xml
+    private fun showZoomImageDialog(imageUrls: List<String>, startPosition: Int) {
+        val dialog = Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.full_image)
+
+        dialog.window?.let { window ->
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                window.attributes.layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            }
+        }
+
+        val vpFullImage = dialog.findViewById<ViewPager2>(R.id.vpFullImage)
+        val tvZoomIndicator = dialog.findViewById<TextView>(R.id.tvZoomIndicator)
+        val btnClose = dialog.findViewById<ImageButton>(R.id.btnClose)
+
+        // Adapter di dialog zoom tanpa onClick (klik pada gambar tidak akan menutup dialog)
+        val adapter = ImageSliderAdapter(imageUrls) { /* Klik gambar tidak melakukan apa-apa */ }
+        vpFullImage.adapter = adapter
+        vpFullImage.setCurrentItem(startPosition, false)
+        tvZoomIndicator.text = "${startPosition + 1}/${imageUrls.size}"
+
+        vpFullImage.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                tvZoomIndicator.text = "${position + 1}/${imageUrls.size}"
+            }
+        })
+
+        // Hanya tombol [X] yang dapat menutup dialog zoom
+        btnClose.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun setupActionButtons(laptop: Laptop) = with(binding) {
@@ -68,6 +154,14 @@ class DetailActivity : AppCompatActivity() {
                 putExtra("IS_EDIT_MODE", true)
             }
             startActivity(intent)
+        }
+
+        btnBorrow.setOnClickListener {
+            Toast.makeText(this@DetailActivity, "Fitur peminjaman ${laptop.brand} ${laptop.model} akan segera hadir!", Toast.LENGTH_SHORT).show()
+        }
+
+        btnReturn.setOnClickListener {
+            Toast.makeText(this@DetailActivity, "Fitur pengembalian ${laptop.brand} ${laptop.model} akan segera hadir!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -95,7 +189,6 @@ class DetailActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Jika sedang edit, ambil data terbaru atau refresh dari Firestore
         val laptop = intent.getSerializableExtra(EXTRA_LAPTOP) as? Laptop
         laptop?.let {
             refreshDetailData(it.inventory_id)
@@ -103,7 +196,6 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun refreshDetailData(inventoryId: String) {
-        // Memanggil Firestore langsung/via ViewModel untuk mendapatkan data real-time terbaru
         FirebaseFirestore.getInstance().collection("items")
             .document(inventoryId)
             .get()

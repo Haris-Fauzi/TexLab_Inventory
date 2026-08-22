@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:fitsSystemWindows="true">
+
+    <!-- ViewPager2 agar foto bisa di-swipe di dalam mode Zoom Fullscreen -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vpFullImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Indikator Halaman Foto (contoh: 1/3) -->
+    <TextView
+        android:id="@+id/tvZoomIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="32dp"
+        android:background="#80000000"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="6dp"
+        android:text="1/1"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <!-- Tombol Silang [X] di pojok kanan atas -->
+    <ImageButton
+        android:id="@+id/btnClose"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Tutup"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        app:tint="@android:color/white" />
+
+</FrameLayout>

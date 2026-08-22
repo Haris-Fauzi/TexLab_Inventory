@@ -17,6 +17,6 @@ data class Laptop(
     var procurement_year: Long = 0L,
     var charger_condition: String = "",
     var charger_status: String = "",
-    var image_url: String = "",
+    var image_url: List<String> = emptyList(),
     var specs: Specs = Specs()
 ) : Serializable
