@@ -221,12 +221,11 @@ class AddLaptopActivity : AppCompatActivity() {
     ) {
         val laptop = Laptop(
             inventory_id = id,
-            brand = brand,
             model = model,
             serial_number = sn,
             location = location,
-            condition = existingLaptop?.condition ?: "NORMAL",
-            image_url = imageUrls, // Sekarang menyimpan List<String>
+            status = existingLaptop?.status ?: "TERSEDIA", // Menggunakan status peminjaman
+            rawImageUrl = imageUrls, // PERBAIKAN: Gunakan rawImageUrl untuk menyimpan List foto
             specs = Specs(processor = processor, ram = ram, storage = storage)
         )
 

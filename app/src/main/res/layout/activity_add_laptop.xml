@@ -70,7 +70,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:text="Pilih Foto dari Galeri" />
+                        android:text="Pilih Foto / Gambar" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

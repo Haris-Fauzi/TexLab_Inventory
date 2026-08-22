@@ -14,17 +14,19 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="12dp">
 
-        <!-- Image Laptop -->
-        <ImageView
+        <!-- Image Laptop (dengan Rounded Corners) -->
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivLaptop"
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:scaleType="centerCrop"
             android:src="@android:drawable/ic_menu_gallery"
-            android:contentDescription="Foto Laptop" />
+            android:contentDescription="Foto Laptop"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -39,7 +41,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="C001"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
                 android:textColor="?attr/colorOnSurface" />
 
@@ -61,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
                 android:text="SN: T6N0CV035300238"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textColor="?android:attr/textColorSecondary" />
 
             <!-- Specs Singkat -->
@@ -71,35 +73,50 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="INTEL CORE 5 • 8 GB • 512 GB"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textColor="?attr/colorOnSurface" />
 
-            <!-- Location & Status -->
+            <!-- 1. Lokasi (Berada di atas Status & Kondisi) -->
+            <TextView
+                android:id="@+id/tvLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="📍 LAB CAD"
+                android:textSize="11sp"
+                android:textStyle="italic"
+                android:textColor="?android:attr/textColorSecondary" />
+
+            <!-- 2. Status & Kondisi (Sejajar di Bawah Lokasi) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="6dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
+                <!-- Badge Status -->
                 <TextView
-                    android:id="@+id/tvLocation"
-                    android:layout_width="0dp"
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="📍 LAB CAD"
-                    android:textSize="11sp"
-                    android:textStyle="italic"
-                    android:textColor="?android:attr/textColorSecondary" />
+                    android:background="@drawable/bg_status_badge"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    android:text="TERSEDIA"
+                    android:textColor="@android:color/white"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
 
+                <!-- Kondisi Laptop (Disamping Status) -->
                 <TextView
                     android:id="@+id/tvCondition"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="NORMAL"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:textColor="#2E7D32" />
+                    android:layout_marginStart="8dp"
+                    android:text="Kondisi: BAIK"
+                    android:textColor="#616161"
+                    android:textSize="11sp" />
             </LinearLayout>
 
         </LinearLayout>

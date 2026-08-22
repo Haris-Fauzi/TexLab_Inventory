@@ -1,296 +1,324 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface"
-    tools:context=".ui.detail.DetailActivity">
+    android:fitsSystemWindows="true">
 
-    <!-- Scrollable Content -->
-    <androidx.core.widget.NestedScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingBottom="100dp">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
+        <!-- Area Image Slider & Indicator -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="280dp">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/vpImageSlider"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:id="@+id/tvImageIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="16dp"
+                android:background="#80000000"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="1/1"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </FrameLayout>
+
+        <!-- Container Info Utama -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
-            <!-- Card Header Foto Laptop + Tombol Aksi Ikon Centered -->
-            <!-- Card Header Foto Laptop Multi-Photo Slider -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardImage"
+            <!-- Header: ID Inventory, Status Badge, dan Action Icon (Edit & Delete) -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeColor="#1F000000"
-                app:strokeWidth="1dp">
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/tvDetailId"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="ID: P001"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
 
-                    <!-- Slider ViewPager2 -->
-                    <androidx.viewpager2.widget.ViewPager2
-                        android:id="@+id/vpImageSlider"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                <!-- Badge Status Peminjaman -->
+                <TextView
+                    android:id="@+id/tvDetailStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_status_badge"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="4dp"
+                    android:text="TERSEDIA"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
-                    <!-- Floating Icon Action Buttons -->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="top|end"
-                        android:layout_margin="12dp"
-                        android:orientation="horizontal">
+                <!-- Icon Edit -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEdit"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    app:icon="@android:drawable/ic_menu_edit"
+                    app:iconTint="?android:attr/textColorSecondary" />
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnEdit"
-                            style="@style/Widget.Material3.Button.IconButton.Filled"
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
-                            android:layout_marginEnd="8dp"
-                            android:contentDescription="Edit Data"
-                            android:padding="0dp"
-                            app:backgroundTint="#B3000000"
-                            app:icon="@android:drawable/ic_menu_edit"
-                            app:iconGravity="textStart"
-                            app:iconPadding="0dp"
-                            app:iconTint="@android:color/white" />
+                <!-- Icon Hapus -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDelete"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:icon="@android:drawable/ic_menu_delete"
+                    app:iconTint="#E53935" />
+            </LinearLayout>
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnDelete"
-                            style="@style/Widget.Material3.Button.IconButton.Filled"
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
-                            android:contentDescription="Hapus Aset"
-                            android:padding="0dp"
-                            app:backgroundTint="#B3D32F2F"
-                            app:icon="@android:drawable/ic_menu_delete"
-                            app:iconGravity="textStart"
-                            app:iconPadding="0dp"
-                            app:iconTint="@android:color/white" />
-                    </LinearLayout>
+            <!-- Brand & Model Laptop -->
+            <TextView
+                android:id="@+id/tvDetailBrandModel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="ASUS NOTEBOOK GRAY - P1412CEA"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                    <!-- Indikator Halaman Foto & Petunjuk Zoom -->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="12dp"
-                        android:background="#80000000"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="4dp">
+            <TextView
+                android:id="@+id/tvDetailSN"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Serial Number: N7NXCV15Y32229D"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14sp" />
 
-                        <TextView
-                            android:id="@+id/tvImageIndicator"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="1/1"
-                            android:textColor="@android:color/white"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:text="• Ketuk untuk perbesar"
-                            android:textColor="@android:color/white"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Card Ringkasan Status Utama (Teks Diperbesar) -->
+            <!-- Card Info Umum & Lokasi -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="1dp"
-                app:strokeColor="#1F000000"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#E0E0E0"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="18dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/tvDetailId"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="ID: C001"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="24sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tvDetailCondition"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="#1B5E20"
-                            android:paddingHorizontal="14dp"
-                            android:paddingVertical="6dp"
-                            android:text="NORMAL"
-                            android:textColor="@android:color/white"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tvDetailBrandModel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="ASUS VIVOBOOK A1404VA"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvDetailSN"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Serial Number: T6N0CV035300238"
-                        android:textColor="?android:attr/textColorSecondary"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:id="@+id/tvDetailLocation"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="📍 Lokasi: LAB CAD"
-                        android:textColor="?android:attr/textColorSecondary"
-                        android:textSize="15sp"
-                        android:textStyle="italic" />
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Card Spesifikasi Perangkat (Teks Diperbesar) -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="1dp"
-                app:strokeColor="#1F000000"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="18dp">
+                    android:padding="16dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Spesifikasi Perangkat"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="18sp"
+                        android:text="Informasi Aset &amp; Lokasi"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="14sp"
                         android:textStyle="bold" />
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginVertical="10dp"
-                        android:background="#1F000000" />
+                        android:layout_marginVertical="8dp"
+                        android:background="#E0E0E0" />
 
                     <TextView
-                        android:id="@+id/tvDetailProcessor"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/tvDetailLocation"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Processor: Intel Core 5"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="16sp" />
+                        android:text="📍 Lokasi: LAB. Pemrograman"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="14sp" />
 
                     <TextView
-                        android:id="@+id/tvDetailRam"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/tvDetailPicLab"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="RAM: 8 GB"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="16sp" />
+                        android:layout_marginTop="6dp"
+                        android:text="👤 PIC Lab: PAK WAHAB"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="14sp" />
 
                     <TextView
-                        android:id="@+id/tvDetailStorage"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/tvDetailYear"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Penyimpanan: 512 GB SSD"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="16sp" />
+                        android:layout_marginTop="6dp"
+                        android:text="📅 Tahun Pengadaan: 2023"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="14sp" />
 
+                    <TextView
+                        android:id="@+id/tvDetailCondition"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="🛠️ Kondisi Laptop: BAIK"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="14sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Card Info Charger -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#E0E0E0"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Informasi Charger"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="8dp"
+                        android:background="#E0E0E0" />
+
+                    <TextView
+                        android:id="@+id/tvDetailChargerStatus"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="🔌 Status Charger: TANPA CHARGER"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvDetailChargerCondition"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="⚡ Kondisi Charger: Tanpa Charger"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card Spesifikasi Laptop -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#E0E0E0"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Spesifikasi Hardware"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="8dp"
+                        android:background="#E0E0E0" />
+
+                    <TextView
+                        android:id="@+id/tvDetailProcessor"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Processor: INTEL CORE i5"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvDetailRam"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="RAM: 4 GB"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvDetailStorage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Penyimpanan: 256 GB"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Container Tombol Utama (Muncul Salah Satu di Tengah) -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp">
+
+                <!-- Tombol Pinjam (Hanya Muncul Jika Status TERSEDIA) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBorrow"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:text="Pinjam"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:visibility="visible"
+                    app:cornerRadius="10dp"
+                    app:backgroundTint="#2A9D8F" /> <!-- Soft Modern Teal -->
+
+                <!-- Tombol Kembalikan (Hanya Muncul Jika Status DIPINJAM) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnReturn"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:text="Kembalikan"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    app:cornerRadius="10dp"
+                    app:backgroundTint="#E76F51" /> <!-- Soft Coral -->
+
+            </FrameLayout>
+
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-
-    <!-- Sticky Bottom Action Bar (Pinjam & Kembalikan Utama) -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        app:cardCornerRadius="0dp"
-        app:cardElevation="8dp"
-        app:strokeWidth="0dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:weightSum="2">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnBorrow"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_marginEnd="6dp"
-                android:layout_weight="1"
-                android:text="PINJAMKAN"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:cornerRadius="12dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnReturn"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_marginStart="6dp"
-                android:layout_weight="1"
-                android:text="KEMBALIKAN"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:cornerRadius="12dp" />
-
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
