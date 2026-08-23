@@ -29,7 +29,8 @@ class DashboardActivity : AppCompatActivity() {
 
         // Klik History
         binding.cardHistory.setOnClickListener {
-            Toast.makeText(this, "Fitur History Peminjaman", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, com.example.texlabinventory.ui.HistoryPeminjamanActivity::class.java)
+            startActivity(intent)
         }
 
         // Klik Logout
