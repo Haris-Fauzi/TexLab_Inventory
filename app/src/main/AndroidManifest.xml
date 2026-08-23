@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TexLabInventory">
 
-        <!-- 1. Halaman Login (Halaman Pertama / Launcher) -->
+        <!-- 1. Halaman Login (Launcher) -->
         <activity
             android:name=".LoginActivity"
             android:exported="true"
@@ -26,19 +26,29 @@
             </intent-filter>
         </activity>
 
-        <!-- 2. Halaman Utama (Dashboard/Katalog) -->
+        <!-- 2. Halaman Dashboard (Menu Utama Grid Card) -->
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false" />
+
+        <!-- 3. Halaman Katalog Inventaris (Diakses dari Dashboard) -->
         <activity
             android:name=".MainActivity"
             android:exported="false" />
 
-        <!-- 3. Halaman Detail Aset -->
+        <!-- 4. Halaman Detail Aset -->
         <activity
             android:name=".ui.detail.DetailActivity"
             android:exported="false" />
 
-        <!-- 4. Halaman Form Tambah/Edit Laptop -->
+        <!-- 5. Halaman Form Tambah/Edit Laptop -->
         <activity
             android:name=".ui.AddLaptopActivity"
+            android:exported="false" />
+
+        <!-- 6. Halaman Siswa -->
+        <activity
+            android:name=".ui.SiswaActivity"
             android:exported="false" />
 
         <provider

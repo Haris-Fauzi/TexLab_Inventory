@@ -6,7 +6,7 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".ui.SiswaActivity">
 
     <!-- Konten Utama Halaman -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -17,13 +17,13 @@
         android:focusable="true"
         android:focusableInTouchMode="true">
 
-        <!-- Material Toolbar untuk Burger Icon & Header Title -->
+        <!-- Toolbar dengan Status Bar Spacing -->
         <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/toolbarSiswa"
             android:layout_width="0dp"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorSurface"
-            app:title="Katalog Inventaris"
+            app:title="Data Siswa"
             app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6"
             app:titleTextColor="?attr/colorOnSurface"
             app:layout_constraintEnd_toEndOf="parent"
@@ -32,13 +32,13 @@
 
         <!-- Search Bar Slim & Minimalis -->
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/searchLayout"
+            android:id="@+id/searchLayoutSiswa"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="8dp"
-            android:hint="Cari ID, Merk, SN, atau Lokasi..."
+            android:hint="Cari Nama, NIS, atau Kelas..."
             app:boxCornerRadiusBottomEnd="14dp"
             app:boxCornerRadiusBottomStart="14dp"
             app:boxCornerRadiusTopEnd="14dp"
@@ -50,12 +50,12 @@
             app:expandedHintEnabled="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintTop_toBottomOf="@id/toolbarSiswa"
             app:startIconDrawable="@drawable/ic_search_resized"
             app:startIconTint="?android:attr/textColorSecondary">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etSearch"
+                android:id="@+id/etSearchSiswa"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:imeOptions="actionSearch"
@@ -67,32 +67,32 @@
 
         <!-- Progress Loading -->
         <ProgressBar
-            android:id="@+id/progressBar"
+            android:id="@+id/progressBarSiswa"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/searchLayout" />
+            app:layout_constraintTop_toBottomOf="@id/searchLayoutSiswa" />
 
-        <!-- List Katalog -->
+        <!-- List Data Siswa -->
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvLaptop"
+            android:id="@+id/rvSiswa"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="8dp"
             android:clipToPadding="false"
-            android:paddingBottom="80dp"
+            android:paddingBottom="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/searchLayout"
-            tools:listitem="@layout/item_laptop" />
+            app:layout_constraintTop_toBottomOf="@id/searchLayoutSiswa"
+            tools:listitem="@layout/item_siswa" />
 
         <!-- Container Empty State -->
         <LinearLayout
-            android:id="@+id/layoutEmptyState"
+            android:id="@+id/layoutEmptyStateSiswa"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -101,37 +101,24 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/searchLayout">
+            app:layout_constraintTop_toBottomOf="@id/searchLayoutSiswa">
 
             <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
-                android:contentDescription="Data kosong"
-                android:src="@android:drawable/ic_menu_search"
+                android:contentDescription="Data siswa kosong"
+                android:src="@android:drawable/ic_menu_myplaces"
                 app:tint="?android:attr/textColorSecondary" />
 
             <TextView
-                android:id="@+id/tvEmptyState"
+                android:id="@+id/tvEmptyStateSiswa"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Data laptop tidak ditemukan"
+                android:text="Data siswa tidak ditemukan"
                 android:textColor="?android:attr/textColorSecondary"
                 android:textSize="14sp" />
         </LinearLayout>
-
-        <!-- Floating Action Button -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabAddLaptop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:contentDescription="Tambah Laptop"
-            app:backgroundTint="?attr/colorPrimary"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@android:drawable/ic_input_add"
-            app:tint="@android:color/white" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

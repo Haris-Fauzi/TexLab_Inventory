@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
+import android.widget.ArrayAdapter
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -23,17 +24,23 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.example.texlabinventory.R
 import com.example.texlabinventory.data.model.Laptop
+import com.example.texlabinventory.data.model.Siswa
 import com.example.texlabinventory.data.utils.Resource
 import com.example.texlabinventory.databinding.ActivityDetailBinding
+import com.example.texlabinventory.databinding.DialogPinjamItemBinding
 import com.example.texlabinventory.ui.AddLaptopActivity
 import com.example.texlabinventory.ui.adapter.ImageSliderAdapter
 import com.example.texlabinventory.ui.viewModel.LaptopViewModel
+import com.example.texlabinventory.ui.viewModel.SiswaViewModel
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.firestore.FirebaseFirestore
 
 class DetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailBinding
     private val viewModel: LaptopViewModel by viewModels()
+
+    private val siswaViewModel: SiswaViewModel by viewModels()
 
     companion object {
         const val EXTRA_LAPTOP = "extra_laptop"
@@ -194,25 +201,128 @@ class DetailActivity : AppCompatActivity() {
         }
 
         btnBorrow.setOnClickListener {
-            showBorrowConfirmationDialog(laptop, "DIPINJAM")
+            showBorrowDialog(laptop)
         }
 
         btnReturn.setOnClickListener {
-            showBorrowConfirmationDialog(laptop, "TERSEDIA")
+            showReturnDialog(laptop)
         }
     }
 
-    private fun showBorrowConfirmationDialog(laptop: Laptop, newStatus: String) {
-        val actionText = if (newStatus == "DIPINJAM") "meminjam" else "mengembalikan"
+    private fun showBorrowDialog(laptop: Laptop) {
+        val dialog = BottomSheetDialog(this)
+        val bindingDialog = DialogPinjamItemBinding.inflate(layoutInflater)
+        dialog.setContentView(bindingDialog.root)
 
-        AlertDialog.Builder(this)
-            .setTitle("Konfirmasi Status")
-            .setMessage("Apakah kamu yakin ingin $actionText laptop ${laptop.inventory_id} ${laptop.brand} ${laptop.model}?")
-            .setPositiveButton("Ya") { _, _ ->
-                updateBorrowStatus(laptop.inventory_id, newStatus)
+        // Set info item
+        val itemInfo = "${laptop.inventory_id} - ${laptop.brand} ${laptop.model}".trim()
+        bindingDialog.etNamaItemPinjam.setText(itemInfo)
+
+        var selectedSiswa: Siswa? = null
+
+        // Set threshold pencarian minimal 3 karakter
+        bindingDialog.actvSiswa.threshold = 3
+
+        // Load data siswa
+        siswaViewModel.siswaState.observe(this) { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    val listSiswa = resource.data ?: emptyList()
+                    val adapterList = listSiswa.map { "${it.nama} (${it.nis}) - ${it.kelas}" }
+
+                    val adapter = ArrayAdapter(
+                        this,
+                        android.R.layout.simple_dropdown_item_1line,
+                        adapterList
+                    )
+
+                    bindingDialog.actvSiswa.setAdapter(adapter)
+
+                    bindingDialog.actvSiswa.setOnItemClickListener { parent, _, position, _ ->
+                        val selectedText = parent.getItemAtPosition(position) as String
+                        // Cari object Siswa yang sesuai dari listSiswa
+                        selectedSiswa = listSiswa.find { "${it.nama} (${it.nis}) - ${it.kelas}" == selectedText }
+                    }
+                }
+                is Resource.Error -> {
+                    Toast.makeText(this, "Gagal memuat siswa: ${resource.message}", Toast.LENGTH_SHORT).show()
+                }
+                is Resource.Loading -> {
+                    // Loading state
+                }
             }
-            .setNegativeButton("Batal", null)
-            .show()
+        }
+
+        siswaViewModel.fetchSiswa()
+
+        bindingDialog.btnBatalPinjam.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        bindingDialog.btnKonfirmasiPinjam.setOnClickListener {
+            val ruangan = bindingDialog.etRuangan.text.toString().trim()
+            val guru = bindingDialog.etGuru.text.toString().trim()
+
+            if (selectedSiswa == null) {
+                Toast.makeText(this, "Pilih siswa peminjam dari daftar rekomendasi!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (ruangan.isEmpty() || guru.isEmpty()) {
+                Toast.makeText(this, "Lengkapi ruangan dan guru pengajar!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            executeBorrowTransaction(laptop, selectedSiswa!!, ruangan, guru) { success ->
+                if (success) {
+                    Toast.makeText(this, "Peminjaman berhasil dicatat!", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
+                    refreshDetailData(laptop.inventory_id)
+                } else {
+                    Toast.makeText(this, "Gagal memproses peminjaman", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        dialog.show()
+    }
+
+    private fun executeBorrowTransaction(
+        laptop: Laptop,
+        siswa: Siswa,
+        ruangan: String,
+        guru: String,
+        onComplete: (Boolean) -> Unit
+    ) {
+        val db = FirebaseFirestore.getInstance()
+        val newBorrowRef = db.collection("peminjaman").document()
+
+        val peminjamanData = hashMapOf(
+            "id" to newBorrowRef.id,
+            "itemId" to laptop.inventory_id,
+            "namaItem" to "${laptop.brand} ${laptop.model}".trim(),
+            "siswaId" to siswa.nis,              // NIS Siswa
+            "namaSiswa" to siswa.nama,
+            "kelasSiswa" to siswa.kelas,
+            "ruangan" to ruangan,
+            "guruPengajar" to guru,
+            "waktuPinjam" to com.google.firebase.Timestamp.now(),
+            "waktuKembali" to null,
+            "status" to "DIPINJAM"
+        )
+
+        // Batch Write / Transaction agar kedua operasi atomic (peminjaman tersimpan & status item terupdate)
+        db.runBatch { batch ->
+            // 1. Simpan ke collection peminjaman
+            batch.set(newBorrowRef, peminjamanData)
+
+            // 2. Update status item
+            val itemRef = db.collection("items").document(laptop.inventory_id)
+            batch.update(itemRef, "status", "DIPINJAM")
+        }.addOnSuccessListener {
+            onComplete(true)
+        }.addOnFailureListener {
+            onComplete(false)
+        }
     }
 
     private fun updateBorrowStatus(inventoryId: String, newStatus: String) {
@@ -232,6 +342,73 @@ class DetailActivity : AppCompatActivity() {
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(this, "Gagal mengubah status: ${exception.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    private fun showReturnDialog(laptop: Laptop) {
+        AlertDialog.Builder(this)
+            .setTitle("Konfirmasi Pengembalian")
+            .setMessage("Apakah Anda yakin laptop ${laptop.brand} ${laptop.model} (${laptop.inventory_id}) sudah dikembalikan?")
+            .setPositiveButton("Ya, Dikembalikan") { _, _ ->
+                executeReturnTransaction(laptop.inventory_id)
+            }
+            .setNegativeButton("Batal", null)
+            .show()
+    }
+
+    private fun executeReturnTransaction(inventoryId: String) {
+        Toast.makeText(this, "Memproses pengembalian...", Toast.LENGTH_SHORT).show()
+        val db = FirebaseFirestore.getInstance()
+
+        // 1. Cari dokumen peminjaman aktif untuk barang ini
+        db.collection("peminjaman")
+            .whereEqualTo("itemId", inventoryId)
+            .whereEqualTo("status", "DIPINJAM")
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (querySnapshot.isEmpty) {
+                    // Jika tidak ada catatan peminjaman aktif, cukup update status item
+                    updateItemStatusToTersedia(inventoryId)
+                } else {
+                    // Update batch: ubah status peminjaman & status item
+                    val batch = db.batch()
+
+                    for (doc in querySnapshot.documents) {
+                        val peminjamanRef = db.collection("peminjaman").document(doc.id)
+                        batch.update(peminjamanRef, mapOf(
+                            "status" to "DIKEMBALIKAN",
+                            "waktuKembali" to com.google.firebase.Timestamp.now()
+                        ))
+                    }
+
+                    val itemRef = db.collection("items").document(inventoryId)
+                    batch.update(itemRef, "status", "TERSEDIA")
+
+                    batch.commit()
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "Barang berhasil dikembalikan!", Toast.LENGTH_SHORT).show()
+                            refreshDetailData(inventoryId)
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this, "Gagal mengembalikan: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Gagal mencari data peminjaman: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    private fun updateItemStatusToTersedia(inventoryId: String) {
+        FirebaseFirestore.getInstance().collection("items")
+            .document(inventoryId)
+            .update("status", "TERSEDIA")
+            .addOnSuccessListener {
+                Toast.makeText(this, "Barang berhasil dikembalikan!", Toast.LENGTH_SHORT).show()
+                refreshDetailData(inventoryId)
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Gagal mengubah status: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 
@@ -274,4 +451,6 @@ class DetailActivity : AppCompatActivity() {
                 updatedLaptop?.let { setupUI(it) }
             }
     }
+
+
 }

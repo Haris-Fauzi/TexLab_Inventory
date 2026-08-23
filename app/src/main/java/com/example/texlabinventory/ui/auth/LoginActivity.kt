@@ -94,7 +94,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun navigateToMain() {
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, DashboardActivity::class.java)
         startActivity(intent)
         finish()
     }

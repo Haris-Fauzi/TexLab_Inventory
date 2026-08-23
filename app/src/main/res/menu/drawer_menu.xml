@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_inventaris"
+            android:icon="@android:drawable/ic_menu_agenda"
+            android:title="Data Inventaris" />
+        <item
+            android:id="@+id/nav_siswa"
+            android:icon="@android:drawable/ic_menu_myplaces"
+            android:title="Data Siswa" />
+        <item
+            android:id="@+id/nav_history"
+            android:icon="@android:drawable/ic_menu_recent_history"
+            android:title="History Peminjaman" />
+    </group>
+
+    <item android:title="Akun">
+        <menu>
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@android:drawable/ic_lock_power_off"
+                android:title="Logout" />
+        </menu>
+    </item>
+</menu>

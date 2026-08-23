@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Header Dialog -->
+    <TextView
+        android:id="@+id/tvTitleDialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Form Peminjaman Barang"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- 1. Info Item (Disabled Field / Read-only) -->
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Barang yang Dipinjam"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etNamaItemPinjam"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:textColor="?attr/colorOnSurface" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- 2. Peminjam (AutoComplete / Dropdown Data Siswa) -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutPeminjam"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="Cari Siswa (Ketik minimal 3 huruf)"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp">
+
+        <AutoCompleteTextView
+            android:id="@+id/actvSiswa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- 3. Ruangan -->
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="Ruangan / Lab"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etRuangan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapWords" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- 4. Guru Pengajar -->
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="Guru Pengajar / Penanggung Jawab"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etGuru"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapWords" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Tombol Aksi -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBatalPinjam"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Batal" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnKonfirmasiPinjam"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="#2A9D8F"
+            android:text="Simpan Peminjaman"
+            app:cornerRadius="8dp" />
+    </LinearLayout>
+
+</LinearLayout>

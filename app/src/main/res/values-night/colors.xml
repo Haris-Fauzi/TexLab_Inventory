@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand Colors (Biru Muda disesuaikan untuk Dark Mode) -->
+    <color name="primary_light">#81D4FA</color> <!-- Light Blue 200 (Lebih cerah agar kontras di background gelap) -->
+    <color name="primary_variant_light">#29B6F6</color>
+    <color name="secondary_light">#80DEEA</color>
+
+    <!-- Background & Surface Colors -->
+    <color name="background_light">#121212</color>
+    <color name="surface_light">#1E1E1E</color>
+
+    <!-- Text & Icon Colors -->
+    <color name="text_primary_light">#E6E1E5</color>
+    <color name="text_secondary_light">#CAC4D0</color>
+</resources>
