@@ -1,47 +1,46 @@
 package com.example.texlabinventory
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+import android.view.MotionEvent
 import android.view.View
-import android.widget.ProgressBar
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.texlabinventory.data.utils.CloudinaryHelper
 import com.example.texlabinventory.data.utils.Resource
+import com.example.texlabinventory.databinding.ActivityMainBinding
 import com.example.texlabinventory.ui.AddLaptopActivity
 import com.example.texlabinventory.ui.adapter.LaptopAdapter
 import com.example.texlabinventory.ui.detail.DetailActivity
 import com.example.texlabinventory.ui.viewModel.LaptopViewModel
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.textfield.TextInputEditText
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityMainBinding
     private val viewModel: LaptopViewModel by viewModels()
     private lateinit var laptopAdapter: LaptopAdapter
-
-    private lateinit var rvLaptop: RecyclerView
-    private lateinit var progressBar: ProgressBar
-    private lateinit var etSearch: TextInputEditText
-    private lateinit var layoutEmptyState: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
 
-        // Penanganan Safe Area Insets agar UI tidak tertutup status bar / nav bar
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainRoot)) { view, insets ->
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.mainRoot) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
             insets
@@ -49,16 +48,12 @@ class MainActivity : AppCompatActivity() {
 
         CloudinaryHelper.init(this)
 
-        rvLaptop = findViewById(R.id.rvLaptop)
-        progressBar = findViewById(R.id.progressBar)
-        etSearch = findViewById(R.id.etSearch)
-        layoutEmptyState = findViewById(R.id.layoutEmptyState)
-
         setupRecyclerView()
         setupSearch()
+        setupBackPressed()
         observeViewModel()
 
-        findViewById<FloatingActionButton>(R.id.fabAddLaptop).setOnClickListener {
+        binding.fabAddLaptop.setOnClickListener {
             val intent = Intent(this, AddLaptopActivity::class.java)
             startActivity(intent)
         }
@@ -73,58 +68,103 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         )
-        rvLaptop.apply {
+        binding.rvLaptop.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = laptopAdapter
         }
     }
 
     private fun setupSearch() {
-        etSearch.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        binding.etSearch.doOnTextChanged { text, _, _, _ ->
+            applyCurrentFilter(text.toString())
+        }
+    }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val query = s.toString()
-                laptopAdapter.filter(query) { isEmpty ->
-                    if (isEmpty) {
-                        layoutEmptyState.visibility = View.VISIBLE
-                        rvLaptop.visibility = View.GONE
-                    } else {
-                        layoutEmptyState.visibility = View.GONE
-                        rvLaptop.visibility = View.VISIBLE
+    private fun applyCurrentFilter(query: String) {
+        laptopAdapter.filter(query) { isEmpty ->
+            if (isEmpty) {
+                binding.layoutEmptyState.visibility = View.VISIBLE
+                binding.rvLaptop.visibility = View.GONE
+            } else {
+                binding.layoutEmptyState.visibility = View.GONE
+                binding.rvLaptop.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    // Unfocus search bar & sembunyikan keyboard saat tombol Back ditekan
+    // Menangani alur tombol Back secara bertahap
+    private fun setupBackPressed() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val hasFocus = binding.etSearch.hasFocus()
+                val textNotEmpty = binding.etSearch.text?.isNotEmpty() == true
+
+                if (hasFocus || textNotEmpty) {
+                    // Sembunyikan keyboard & lepas fokus
+                    hideKeyboardAndUnfocus()
+
+                    // Bersihkan teks jika ada isinya
+                    if (textNotEmpty) {
+                        binding.etSearch.setText("")
                     }
+                } else {
+                    // Jika search bar sudah tidak fokus dan tidak ada isinya, keluar aplikasi
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
                 }
             }
-
-            override fun afterTextChanged(s: Editable?) {}
         })
+    }
+
+    private fun hideKeyboardAndUnfocus() {
+        binding.etSearch.clearFocus()
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.etSearch.windowToken, 0)
     }
 
     private fun observeViewModel() {
         viewModel.laptopsState.observe(this) { resource ->
             when (resource) {
                 is Resource.Loading -> {
-                    progressBar.visibility = View.VISIBLE
-                    rvLaptop.visibility = View.GONE
-                    layoutEmptyState.visibility = View.GONE
+                    binding.progressBar.visibility = View.VISIBLE
+                    binding.rvLaptop.visibility = View.GONE
+                    binding.layoutEmptyState.visibility = View.GONE
                 }
                 is Resource.Success -> {
-                    progressBar.visibility = View.GONE
+                    binding.progressBar.visibility = View.GONE
                     if (resource.data.isEmpty()) {
-                        layoutEmptyState.visibility = View.VISIBLE
-                        rvLaptop.visibility = View.GONE
+                        binding.layoutEmptyState.visibility = View.VISIBLE
+                        binding.rvLaptop.visibility = View.GONE
                     } else {
-                        layoutEmptyState.visibility = View.GONE
-                        rvLaptop.visibility = View.VISIBLE
                         laptopAdapter.updateData(resource.data)
+
+                        // Menerapkan ulang filter pencarian yang tersisa di etSearch
+                        val currentQuery = binding.etSearch.text.toString()
+                        applyCurrentFilter(currentQuery)
                     }
                 }
                 is Resource.Error -> {
-                    progressBar.visibility = View.GONE
+                    binding.progressBar.visibility = View.GONE
                     Toast.makeText(this, resource.message, Toast.LENGTH_LONG).show()
                 }
             }
         }
+    }
+
+    // Unfocus otomatis saat menyentuh layar di luar search bar
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (ev?.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+            if (v is EditText) {
+                val outRect = Rect()
+                v.getGlobalVisibleRect(outRect)
+                if (!outRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                    hideKeyboardAndUnfocus()
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
     }
 
     override fun onResume() {

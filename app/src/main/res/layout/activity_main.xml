@@ -7,6 +7,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context=".MainActivity">
 
     <!-- Header Title -->
@@ -17,33 +19,45 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="Katalog Inventaris"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:textColor="?attr/colorOnSurface"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Search Bar -->
+    <!-- Search Bar Slim & Minimalis -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/searchLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="12dp"
         android:hint="Cari ID, Merk, SN, atau Lokasi..."
-        app:startIconDrawable="@android:drawable/ic_menu_search"
+        app:boxCornerRadiusBottomEnd="14dp"
+        app:boxCornerRadiusBottomStart="14dp"
+        app:boxCornerRadiusTopEnd="14dp"
+        app:boxCornerRadiusTopStart="14dp"
+        app:boxStrokeColor="#2A9D8F"
+        app:boxStrokeWidth="1dp"
+        app:boxStrokeWidthFocused="1.5dp"
         app:endIconMode="clear_text"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:expandedHintEnabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvHeaderTitle">
+        app:layout_constraintTop_toBottomOf="@id/tvHeaderTitle"
+        app:startIconDrawable="@android:drawable/ic_menu_search"
+        app:startIconTint="?android:attr/textColorSecondary">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etSearch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:imeOptions="actionSearch"
             android:inputType="text"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:paddingVertical="10dp"
+            android:textSize="13sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Progress Loading -->
@@ -63,8 +77,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        android:paddingBottom="80dp"
         android:clipToPadding="false"
+        android:paddingBottom="80dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -87,9 +101,9 @@
         <ImageView
             android:layout_width="64dp"
             android:layout_height="64dp"
+            android:contentDescription="Data kosong"
             android:src="@android:drawable/ic_menu_search"
-            app:tint="?android:attr/textColorSecondary"
-            android:contentDescription="Data kosong" />
+            app:tint="?android:attr/textColorSecondary" />
 
         <TextView
             android:id="@+id/tvEmptyState"
@@ -97,8 +111,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Data laptop tidak ditemukan"
-            android:textSize="14sp"
-            android:textColor="?android:attr/textColorSecondary" />
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="14sp" />
     </LinearLayout>
 
     <!-- Floating Action Button -->
@@ -108,10 +122,10 @@
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:contentDescription="Tambah Laptop"
-        app:srcCompat="@android:drawable/ic_input_add"
-        app:tint="@android:color/white"
         app:backgroundTint="?attr/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@android:drawable/ic_input_add"
+        app:tint="@android:color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
