@@ -24,6 +24,7 @@ import com.example.texlabinventory.data.utils.CloudinaryHelper
 import com.example.texlabinventory.data.utils.Resource
 import com.example.texlabinventory.databinding.ActivityMainBinding
 import com.example.texlabinventory.ui.AddLaptopActivity
+import com.example.texlabinventory.ui.HistoryPeminjamanActivity // Import HistoryPeminjamanActivity
 import com.example.texlabinventory.ui.SiswaActivity
 import com.example.texlabinventory.ui.adapter.LaptopAdapter
 import com.example.texlabinventory.ui.detail.DetailActivity
@@ -68,7 +69,6 @@ class MainActivity : AppCompatActivity() {
     private fun setupNavigationDrawer() {
         setSupportActionBar(binding.toolbar)
 
-        // Membuat ikon burger tiga garis & menghubungkan dengan DrawerLayout
         toggle = ActionBarDrawerToggle(
             this,
             binding.drawerLayout,
@@ -79,7 +79,21 @@ class MainActivity : AppCompatActivity() {
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        // Menandai menu 'Data Inventaris' sebagai yang sedang terpilih
+        // 1. Matikan tint warna agar icon PNG tampil warna aslinya
+        binding.navigationView.itemIconTintList = null
+
+        // 2. Set listener klik pada Header Navigation (Logo / Teks) untuk kembali ke Dashboard
+        val headerView = binding.navigationView.getHeaderView(0)
+
+        // Menggunakan ID ImageView/TextView yang ada di nav_header.xml
+        val ivLogoHeader = headerView.findViewById<View>(R.id.ivNavLogo) // Ganti id sesuai xml kamu
+        ivLogoHeader?.setOnClickListener {
+            val intent = Intent(this, DashboardActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            startActivity(intent)
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+        }
+
         binding.navigationView.setCheckedItem(R.id.nav_inventaris)
 
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
@@ -92,7 +106,9 @@ class MainActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
                 R.id.nav_history -> {
-                    Toast.makeText(this, "Fitur History Peminjaman", Toast.LENGTH_SHORT).show()
+                    // Pindah ke HistoryPeminjamanActivity
+                    val intent = Intent(this, HistoryPeminjamanActivity::class.java)
+                    startActivity(intent)
                 }
                 R.id.nav_logout -> {
                     FirebaseAuth.getInstance().signOut()
@@ -141,7 +157,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Prioritas Back Pressed: Tutup Drawer -> Unfocus search bar -> Exit/Back biasa
     private fun setupBackPressed() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -179,7 +194,6 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         laptopAdapter.updateData(resource.data)
 
-                        // Menerapkan ulang filter pencarian yang tersisa di etSearch
                         val currentQuery = binding.etSearch.text.toString()
                         applyCurrentFilter(currentQuery)
                     }
@@ -192,7 +206,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Unfocus otomatis saat menyentuh layar di luar search bar
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         if (ev?.action == MotionEvent.ACTION_DOWN) {
             val v = currentFocus

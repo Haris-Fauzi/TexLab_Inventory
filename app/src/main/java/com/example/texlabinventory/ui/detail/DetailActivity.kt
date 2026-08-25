@@ -205,7 +205,11 @@ class DetailActivity : AppCompatActivity() {
         }
 
         btnReturn.setOnClickListener {
-            showReturnDialog(laptop)
+            Toast.makeText(
+                this@DetailActivity, // Ganti 'this' dengan 'this@NamaActivityKamu'
+                "Pengembalian barang hanya dapat dilakukan melalui menu History Peminjaman!",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -294,35 +298,50 @@ class DetailActivity : AppCompatActivity() {
         onComplete: (Boolean) -> Unit
     ) {
         val db = FirebaseFirestore.getInstance()
-        val newBorrowRef = db.collection("peminjaman").document()
 
-        val peminjamanData = hashMapOf(
-            "id" to newBorrowRef.id,
-            "itemId" to laptop.inventory_id,
-            "namaItem" to "${laptop.brand} ${laptop.model}".trim(),
-            "siswaId" to siswa.nis,              // NIS Siswa
-            "namaSiswa" to siswa.nama,
-            "kelasSiswa" to siswa.kelas,
-            "ruangan" to ruangan,
-            "guruPengajar" to guru,
-            "waktuPinjam" to com.google.firebase.Timestamp.now(),
-            "waktuKembali" to null,
-            "status" to "DIPINJAM"
-        )
+        // 1. Cari dokumen item berdasarkan field inventory_id
+        db.collection("items")
+            .whereEqualTo("inventory_id", laptop.inventory_id)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (querySnapshot.isEmpty) {
+                    Toast.makeText(this, "Item tidak ditemukan di basis data!", Toast.LENGTH_SHORT).show()
+                    onComplete(false)
+                    return@addOnSuccessListener
+                }
 
-        // Batch Write / Transaction agar kedua operasi atomic (peminjaman tersimpan & status item terupdate)
-        db.runBatch { batch ->
-            // 1. Simpan ke collection peminjaman
-            batch.set(newBorrowRef, peminjamanData)
+                val itemDocRef = querySnapshot.documents[0].reference
+                val newBorrowRef = db.collection("peminjaman").document()
 
-            // 2. Update status item
-            val itemRef = db.collection("items").document(laptop.inventory_id)
-            batch.update(itemRef, "status", "DIPINJAM")
-        }.addOnSuccessListener {
-            onComplete(true)
-        }.addOnFailureListener {
-            onComplete(false)
-        }
+                val peminjamanData = hashMapOf(
+                    "id" to newBorrowRef.id,
+                    "itemId" to laptop.inventory_id, // Tetap gunakan inventory_id sebagai acuan
+                    "namaItem" to "${laptop.brand} ${laptop.model}".trim(),
+                    "siswaId" to siswa.nis,
+                    "namaSiswa" to siswa.nama,
+                    "kelasSiswa" to siswa.kelas,
+                    "ruangan" to ruangan,
+                    "guruPengajar" to guru,
+                    "waktuPinjam" to com.google.firebase.Timestamp.now(),
+                    "waktuKembali" to null,
+                    "status" to "DIPINJAM"
+                )
+
+                // Execute Batch Update
+                db.runBatch { batch ->
+                    // Simpan Riwayat Peminjaman
+                    batch.set(newBorrowRef, peminjamanData)
+                    // Update Status Item di Katalog
+                    batch.update(itemDocRef, "status", "DIPINJAM")
+                }.addOnSuccessListener {
+                    onComplete(true)
+                }.addOnFailureListener {
+                    onComplete(false)
+                }
+            }
+            .addOnFailureListener {
+                onComplete(false)
+            }
     }
 
     private fun updateBorrowStatus(inventoryId: String, newStatus: String) {
@@ -345,16 +364,16 @@ class DetailActivity : AppCompatActivity() {
             }
     }
 
-    private fun showReturnDialog(laptop: Laptop) {
-        AlertDialog.Builder(this)
-            .setTitle("Konfirmasi Pengembalian")
-            .setMessage("Apakah Anda yakin laptop ${laptop.brand} ${laptop.model} (${laptop.inventory_id}) sudah dikembalikan?")
-            .setPositiveButton("Ya, Dikembalikan") { _, _ ->
-                executeReturnTransaction(laptop.inventory_id)
-            }
-            .setNegativeButton("Batal", null)
-            .show()
-    }
+//    private fun showReturnDialog(laptop: Laptop) {
+//        AlertDialog.Builder(this)
+//            .setTitle("Konfirmasi Pengembalian")
+//            .setMessage("Apakah Anda yakin laptop ${laptop.brand} ${laptop.model} (${laptop.inventory_id}) sudah dikembalikan?")
+//            .setPositiveButton("Ya, Dikembalikan") { _, _ ->
+//                executeReturnTransaction(laptop.inventory_id)
+//            }
+//            .setNegativeButton("Batal", null)
+//            .show()
+//    }
 
     private fun executeReturnTransaction(inventoryId: String) {
         Toast.makeText(this, "Memproses pengembalian...", Toast.LENGTH_SHORT).show()
@@ -444,11 +463,13 @@ class DetailActivity : AppCompatActivity() {
 
     private fun refreshDetailData(inventoryId: String) {
         FirebaseFirestore.getInstance().collection("items")
-            .document(inventoryId)
+            .whereEqualTo("inventory_id", inventoryId)
             .get()
-            .addOnSuccessListener { document ->
-                val updatedLaptop = document.toObject(Laptop::class.java)
-                updatedLaptop?.let { setupUI(it) }
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val updatedLaptop = querySnapshot.documents[0].toObject(Laptop::class.java)
+                    updatedLaptop?.let { setupUI(it) }
+                }
             }
     }
 

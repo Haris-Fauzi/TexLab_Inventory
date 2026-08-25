@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="240dp"
+    android:viewportWidth="360"
+    android:viewportHeight="240">
+
+    <!-- EFEK SHADOW CARD (Bekerja dari luar yang paling pudar hingga ke tepi gelombang) -->
+
+    <!-- Layer 5 (Paling Luar - Blur paling halus): 2% Hitam -->
+    <path
+        android:fillColor="#05000000"
+        android:pathData="M0,0 L360,0 L360,147 C280,227 120,107 0,187 Z" />
+
+    <!-- Layer 4: 4% Hitam -->
+    <path
+        android:fillColor="#0A000000"
+        android:pathData="M0,0 L360,0 L360,145 C280,225 120,105 0,185 Z" />
+
+    <!-- Layer 3: 7% Hitam -->
+    <path
+        android:fillColor="#12000000"
+        android:pathData="M0,0 L360,0 L360,143.5 C280,223.5 120,103.5 0,183.5 Z" />
+
+    <!-- Layer 2: 10% Hitam -->
+    <path
+        android:fillColor="#1A000000"
+        android:pathData="M0,0 L360,0 L360,142 C280,222 120,102 0,182 Z" />
+
+    <!-- Layer 1 (Tepat di bawah tepi gelombang): 14% Hitam -->
+    <path
+        android:fillColor="#24000000"
+        android:pathData="M0,0 L360,0 L360,141 C280,221 120,101 0,181 Z" />
+
+    <!-- GELOMBANG UTAMA (Warna Asli) -->
+    <path
+        android:fillColor="#72BBEA"
+        android:pathData="M0,0 L360,0 L360,140 C280,220 120,100 0,180 Z" />
+
+</vector>

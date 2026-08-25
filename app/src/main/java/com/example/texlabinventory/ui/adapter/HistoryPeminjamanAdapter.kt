@@ -5,19 +5,19 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.texlabinventory.R
 import com.example.texlabinventory.data.model.Peminjaman
 import com.example.texlabinventory.databinding.ItemHistoryPeminjamanBinding
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class HistoryPeminjamanAdapter : ListAdapter<Peminjaman, HistoryPeminjamanAdapter.ViewHolder>(DIFF_CALLBACK) {
+class HistoryPeminjamanAdapter(
+    private val onItemClick: (Peminjaman) -> Unit
+) : ListAdapter<Peminjaman, HistoryPeminjamanAdapter.ViewHolder>(DIFF_CALLBACK) {
 
-    class ViewHolder(private val binding: ItemHistoryPeminjamanBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(private val binding: ItemHistoryPeminjamanBinding) : RecyclerView.ViewHolder(binding.root) {
 
         private val dateFormat = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale("id", "ID"))
 
@@ -37,10 +37,18 @@ class HistoryPeminjamanAdapter : ListAdapter<Peminjaman, HistoryPeminjamanAdapte
 
                 tvStatusBadge.text = "DIKEMBALIKAN"
                 tvStatusBadge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4CAF50")) // Hijau
+
+                // Menghapus click listener jika item sudah dikembalikan
+                root.setOnClickListener(null)
             } else {
                 tvWaktuKembali.visibility = View.GONE
                 tvStatusBadge.text = "DIPINJAM"
                 tvStatusBadge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FF9800")) // Oranye
+
+                // Memberikan aksi klik hanya untuk item yang masih dipinjam
+                root.setOnClickListener {
+                    onItemClick(item)
+                }
             }
         }
     }

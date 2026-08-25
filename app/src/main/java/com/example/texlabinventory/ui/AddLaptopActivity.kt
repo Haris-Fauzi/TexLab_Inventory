@@ -1,11 +1,11 @@
 package com.example.texlabinventory.ui
 
 import android.content.res.Configuration
-import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -30,14 +30,11 @@ class AddLaptopActivity : AppCompatActivity() {
     private val viewModel: LaptopViewModel by viewModels()
     private val repository = LaptopRepository()
 
-    // Penampung banyak URI foto lokal yang baru dipilih
     private val selectedImageUris = ArrayList<Uri>()
-
     private var isEditMode = false
     private var existingLaptop: Laptop? = null
     private var tempCameraUri: Uri? = null
 
-    // 1. Launcher Galeri (Multi Select)
     private val imagePickerLauncher = registerForActivityResult(
         ActivityResultContracts.GetMultipleContents()
     ) { uris: List<Uri> ->
@@ -47,7 +44,6 @@ class AddLaptopActivity : AppCompatActivity() {
         }
     }
 
-    // 2. Launcher Kamera (Menambahkan 1 Foto HD ke List)
     private val takePictureLauncher = registerForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { isSuccess ->
@@ -61,7 +57,6 @@ class AddLaptopActivity : AppCompatActivity() {
 
     private fun updateImagePreview() {
         if (selectedImageUris.isNotEmpty()) {
-            // Menampilkan foto paling baru yang ditambahkan ke preview
             binding.ivPreview.setImageURI(selectedImageUris.last())
         }
     }
@@ -102,6 +97,9 @@ class AddLaptopActivity : AppCompatActivity() {
 
         setupStatusBarTheme()
 
+        // 1. PANGGIL SETUP DROPDOWN DI SINI
+        setupDropdowns()
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.rootView) { view, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             view.setPadding(0, statusBarHeight, 0, 0)
@@ -124,6 +122,25 @@ class AddLaptopActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupDropdowns() {
+        val chargerStatusOptions = arrayOf("Ada Charger", "Tanpa Charger")
+        val chargerConditionOptions = arrayOf("Baik/Normal", "Rusak")
+
+        val statusAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_dropdown_item_1line,
+            chargerStatusOptions
+        )
+        binding.actvChargerStatus.setAdapter(statusAdapter)
+
+        val conditionAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_dropdown_item_1line,
+            chargerConditionOptions
+        )
+        binding.actvChargerCondition.setAdapter(conditionAdapter)
+    }
+
     private fun setupStatusBarTheme() {
         window.statusBarColor = Color.TRANSPARENT
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
@@ -142,11 +159,19 @@ class AddLaptopActivity : AppCompatActivity() {
         etModel.setText(laptop.model)
         etSN.setText(laptop.serial_number)
         etLocation.setText(laptop.location)
+
+        etCondition.setText(laptop.condition)
+        etPicLab.setText(laptop.pic_lab)
+        etProcurementYear.setText(if (laptop.procurement_year != 0L) laptop.procurement_year.toString() else "")
+
+        // PERBAIKAN: Set teks awal dropdown saat mode edit (tanpa memicu filter)
+        actvChargerStatus.setText(laptop.charger_status, false)
+        actvChargerCondition.setText(laptop.charger_condition, false)
+
         etProcessor.setText(laptop.specs.processor)
         etRam.setText(laptop.specs.ram)
         etStorage.setText(laptop.specs.storage)
 
-        // Tampilkan foto pertama jika ada data image_url
         if (laptop.image_url.isNotEmpty()) {
             Glide.with(this@AddLaptopActivity)
                 .load(laptop.image_url.first())
@@ -160,6 +185,16 @@ class AddLaptopActivity : AppCompatActivity() {
         val model = etModel.text.toString().trim()
         val sn = etSN.text.toString().trim()
         val location = etLocation.text.toString().trim()
+
+        val condition = etCondition.text.toString().trim()
+        val picLab = etPicLab.text.toString().trim()
+        val procurementYearStr = etProcurementYear.text.toString().trim()
+        val procurementYear = procurementYearStr.toLongOrNull() ?: 0L
+
+        // Ambil nilai dari Dropdown
+        val chargerStatus = actvChargerStatus.text.toString().trim()
+        val chargerCondition = actvChargerCondition.text.toString().trim()
+
         val processor = etProcessor.text.toString().trim()
         val ram = etRam.text.toString().trim()
         val storage = etStorage.text.toString().trim()
@@ -172,25 +207,29 @@ class AddLaptopActivity : AppCompatActivity() {
         setLoading(true)
 
         if (selectedImageUris.isNotEmpty()) {
-            // Upload seluruh list foto ke Cloudinary secara bertahap (Rekursif)
             uploadMultipleImages(0, ArrayList()) { uploadedUrls ->
-                // Jika dalam mode edit, gabungkan foto lama dengan foto baru
                 val finalUrls = if (isEditMode) {
                     (existingLaptop?.image_url ?: emptyList()) + uploadedUrls
                 } else {
                     uploadedUrls
                 }
 
-                saveToFirestore(inventoryId, brand, model, sn, location, processor, ram, storage, finalUrls)
+                saveToFirestore(
+                    inventoryId, brand, model, sn, location, condition, picLab,
+                    procurementYear, chargerStatus, chargerCondition,
+                    processor, ram, storage, finalUrls
+                )
             }
         } else {
-            // Jika tidak memilih foto baru
             val existingUrls = if (isEditMode) existingLaptop?.image_url ?: emptyList() else emptyList()
-            saveToFirestore(inventoryId, brand, model, sn, location, processor, ram, storage, existingUrls)
+            saveToFirestore(
+                inventoryId, brand, model, sn, location, condition, picLab,
+                procurementYear, chargerStatus, chargerCondition,
+                processor, ram, storage, existingUrls
+            )
         }
     }
 
-    // Fungsi rekursif untuk mengunggah List Uri ke Cloudinary
     private fun uploadMultipleImages(
         index: Int,
         uploadedUrls: ArrayList<String>,
@@ -205,7 +244,6 @@ class AddLaptopActivity : AppCompatActivity() {
             selectedImageUris[index],
             onSuccess = { imageUrl ->
                 uploadedUrls.add(imageUrl)
-                // Lanjut ke foto berikutnya
                 uploadMultipleImages(index + 1, uploadedUrls, onComplete)
             },
             onError = { error ->
@@ -216,16 +254,24 @@ class AddLaptopActivity : AppCompatActivity() {
     }
 
     private fun saveToFirestore(
-        id: String, brand: String, model: String, sn: String,
-        location: String, processor: String, ram: String, storage: String, imageUrls: List<String>
+        id: String, brand: String, model: String, sn: String, location: String,
+        condition: String, picLab: String, procurementYear: Long,
+        chargerStatus: String, chargerCondition: String,
+        processor: String, ram: String, storage: String, imageUrls: List<String>
     ) {
         val laptop = Laptop(
             inventory_id = id,
+            brand = brand,
             model = model,
             serial_number = sn,
+            condition = condition,
+            status = existingLaptop?.status ?: "TERSEDIA",
             location = location,
-            status = existingLaptop?.status ?: "TERSEDIA", // Menggunakan status peminjaman
-            rawImageUrl = imageUrls, // PERBAIKAN: Gunakan rawImageUrl untuk menyimpan List foto
+            pic_lab = picLab,
+            procurement_year = procurementYear,
+            charger_status = chargerStatus,
+            charger_condition = chargerCondition,
+            rawImageUrl = imageUrls,
             specs = Specs(processor = processor, ram = ram, storage = storage)
         )
 

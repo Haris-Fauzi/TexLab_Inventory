@@ -17,7 +17,7 @@
         android:focusable="true"
         android:focusableInTouchMode="true">
 
-        <!-- Toolbar dengan Navigation Icon / Burger Menu -->
+        <!-- Toolbar -->
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbarHistory"
             android:layout_width="0dp"
@@ -30,13 +30,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Search Bar Slim & Minimalis (Sama Persis dengan Halaman Siswa) -->
+        <!-- Search Bar Slim & Minimalis -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/searchLayoutHistory"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginTop="8dp"
             android:hint="Cari Barang, Peminjam, atau NIS..."
             app:boxCornerRadiusBottomEnd="14dp"
@@ -48,7 +49,7 @@
             app:boxStrokeWidthFocused="1.5dp"
             app:endIconMode="clear_text"
             app:expandedHintEnabled="false"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnFilterHistory"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/toolbarHistory"
             app:startIconDrawable="@drawable/ic_search_resized"
@@ -64,6 +65,34 @@
                 android:paddingVertical="10dp"
                 android:textSize="13sp" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Tombol Icon Filter (Rata Tengah dengan Outlined Box) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnFilterHistory"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="6dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#2A9D8F"
+            app:strokeWidth="1dp"
+            app:layout_constraintBottom_toBottomOf="@id/searchLayoutHistory"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/searchLayoutHistory">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:contentDescription="Filter Data"
+                android:src="@drawable/filter"
+                app:tint="#2A9D8F" />
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Progress Loading -->
         <ProgressBar
