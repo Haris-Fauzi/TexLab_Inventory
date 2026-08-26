@@ -42,7 +42,7 @@ class HistoryPeminjamanViewModel : ViewModel() {
         _actionState.value = Resource.Loading
 
         // 1. Cari item di katalog "laptops" atau "items" berdasarkan itemId
-        db.collection("laptops")
+        db.collection("items")
             .whereEqualTo("inventory_id", peminjaman.itemId)
             .get()
             .addOnSuccessListener { querySnapshot ->

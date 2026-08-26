@@ -21,6 +21,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.texlabinventory.DashboardActivity
 import com.example.texlabinventory.LoginActivity
 import com.example.texlabinventory.MainActivity
 import com.example.texlabinventory.R
@@ -88,6 +89,18 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
         )
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
+
+        // 1. Matikan tint warna agar icon PNG tampil warna aslinya
+        binding.navigationView.itemIconTintList = null
+
+        // 2. Set listener klik pada Header Navigation (Logo / Teks) untuk berpindah ke Dashboard
+        val headerView = binding.navigationView.getHeaderView(0)
+        headerView.setOnClickListener {
+            val intent = Intent(this, DashboardActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            startActivity(intent)
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+        }
 
         binding.navigationView.setCheckedItem(R.id.nav_history)
 

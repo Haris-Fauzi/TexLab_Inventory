@@ -10,11 +10,11 @@
             android:title="Data Inventaris" />
         <item
             android:id="@+id/nav_siswa"
-            android:icon="@android:drawable/ic_menu_myplaces"
+            android:icon="@drawable/student"
             android:title="Data Siswa" />
         <item
             android:id="@+id/nav_history"
-            android:icon="@android:drawable/ic_menu_recent_history"
+            android:icon="@drawable/history"
             android:title="History Peminjaman" />
     </group>
 
@@ -23,7 +23,7 @@
             <group android:checkableBehavior="none">
                 <item
                     android:id="@+id/nav_logout"
-                    android:icon="@android:drawable/ic_lock_power_off"
+                    android:icon="@drawable/logout"
                     android:title="Logout" />
             </group>
         </menu>
