@@ -30,14 +30,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Card Dashboard Ringkasan & Filter Lab -->
+        <!-- Card Dashboard Ringkasan & Filter Lab (Diperkecil) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardDashboard"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="8dp"
-            app:cardCornerRadius="16dp"
+            android:layout_marginTop="4dp"
+            app:cardCornerRadius="12dp"
             app:cardElevation="2dp"
             app:strokeWidth="1dp"
             app:strokeColor="#E0E0E0"
@@ -50,7 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="12dp">
 
                 <!-- Filter Dropdown Lab -->
                 <com.google.android.material.textfield.TextInputLayout
@@ -58,21 +58,27 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="8dp"
+                    app:boxBackgroundColor="#F5F7FA"
                     app:boxCornerRadiusBottomEnd="8dp"
                     app:boxCornerRadiusBottomStart="8dp"
                     app:boxCornerRadiusTopEnd="8dp"
-                    app:boxCornerRadiusTopStart="8dp">
+                    app:boxCornerRadiusTopStart="8dp"
+                    app:boxStrokeColor="#2196F3"
+                    app:boxStrokeWidth="1dp"
+                    app:endIconTint="#2196F3">
 
                     <AutoCompleteTextView
                         android:id="@+id/spinnerFilterLab"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="none"
-                        android:paddingVertical="10dp"
+                        android:paddingVertical="6dp"
                         android:text="Semua Lab"
-                        android:textSize="13sp"
+                        android:textColor="#333333"
+                        android:textSize="12sp"
                         android:textStyle="bold" />
+
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Status Counters (Angka Ringkasan) -->
@@ -81,7 +87,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:weightSum="4"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="8dp">
 
                     <!-- Total -->
                     <LinearLayout
@@ -96,15 +102,14 @@
                             android:layout_height="wrap_content"
                             android:text="0"
                             android:textColor="#333333"
-                            android:textSize="18sp"
+                            android:textSize="15sp"
                             android:textStyle="bold" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Total"
                             android:textColor="#333333"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:textSize="11sp" />
                     </LinearLayout>
 
                     <!-- Tersedia -->
@@ -120,15 +125,14 @@
                             android:layout_height="wrap_content"
                             android:text="0"
                             android:textColor="#4CAF50"
-                            android:textSize="18sp"
+                            android:textSize="15sp"
                             android:textStyle="bold" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Tersedia"
                             android:textColor="#4CAF50"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:textSize="11sp" />
                     </LinearLayout>
 
                     <!-- Dipinjam -->
@@ -144,15 +148,14 @@
                             android:layout_height="wrap_content"
                             android:text="0"
                             android:textColor="#2196F3"
-                            android:textSize="18sp"
+                            android:textSize="15sp"
                             android:textStyle="bold" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Dipinjam"
                             android:textColor="#2196F3"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:textSize="11sp" />
                     </LinearLayout>
 
                     <!-- Rusak -->
@@ -168,15 +171,14 @@
                             android:layout_height="wrap_content"
                             android:text="0"
                             android:textColor="#E53935"
-                            android:textSize="18sp"
+                            android:textSize="15sp"
                             android:textStyle="bold" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Rusak"
                             android:textColor="#E53935"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:textSize="11sp" />
                     </LinearLayout>
 
                 </LinearLayout>
@@ -184,8 +186,8 @@
                 <!-- Visual Bar Indicator (Rasio) -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
-                    android:layout_height="10dp"
-                    app:cardCornerRadius="5dp"
+                    android:layout_height="6dp"
+                    app:cardCornerRadius="3dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="0dp">
 
@@ -233,12 +235,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:hint="Cari ID, Merk, SN, atau Lokasi..."
-            app:boxCornerRadiusBottomEnd="14dp"
-            app:boxCornerRadiusBottomStart="14dp"
-            app:boxCornerRadiusTopEnd="14dp"
-            app:boxCornerRadiusTopStart="14dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
             app:boxStrokeColor="#2A9D8F"
             app:boxStrokeWidth="1dp"
             app:boxStrokeWidthFocused="1.5dp"
@@ -257,8 +259,8 @@
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:maxLines="1"
-                android:paddingVertical="10dp"
-                android:textSize="13sp" />
+                android:paddingVertical="8dp"
+                android:textSize="12sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Progress Loading -->
