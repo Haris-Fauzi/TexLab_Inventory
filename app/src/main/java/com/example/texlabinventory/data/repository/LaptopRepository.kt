@@ -80,4 +80,24 @@ class LaptopRepository(
         }
     }
 
+    //scanner
+    // Tambahkan fungsi ini di dalam class LaptopRepository
+    suspend fun getLaptopById(inventoryId: String): Resource<Laptop?> {
+        return try {
+            val snapshot = firestore.collection("items")
+                .whereEqualTo("inventory_id", inventoryId)
+                .get()
+                .await()
+
+            if (!snapshot.isEmpty) {
+                val laptop = snapshot.documents[0].toObject(Laptop::class.java)
+                Resource.Success(laptop)
+            } else {
+                Resource.Success(null) // Laptop tidak ditemukan
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Gagal mengambil data laptop")
+        }
+    }
+
 }

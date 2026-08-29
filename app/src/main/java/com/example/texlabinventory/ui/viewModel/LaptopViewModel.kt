@@ -59,4 +59,18 @@ class LaptopViewModel(
             }
         }
     }
+
+    //scanner fun
+    fun getLaptopById(inventoryId: String, onResult: (Resource<Laptop?>) -> Unit) {
+        viewModelScope.launch {
+            onResult(Resource.Loading)
+            try {
+                // Memanggil fungsi pencarian tunggal dari Repository atau Firestore langsung
+                val result = repository.getLaptopById(inventoryId)
+                onResult(result)
+            } catch (e: Exception) {
+                onResult(Resource.Error(e.message ?: "Terjadi kesalahan"))
+            }
+        }
+    }
 }

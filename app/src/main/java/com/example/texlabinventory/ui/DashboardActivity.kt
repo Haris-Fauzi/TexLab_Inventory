@@ -43,6 +43,41 @@ class DashboardActivity : AppCompatActivity() {
     private var selectedDateString: String = ""
     private var activeFilterType: Int = 1
 
+    //scanner fun
+    private val scanLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val scannedBarcode = result.data?.getStringExtra("EXTRA_BARCODE_RESULT")?.trim()
+            if (!scannedBarcode.isNullOrEmpty()) {
+                Toast.makeText(this, "Mencari laptop: $scannedBarcode...", Toast.LENGTH_SHORT).show()
+                fetchLaptopAndNavigateToDetail(scannedBarcode)
+            }
+        }
+    }
+
+    private fun fetchLaptopAndNavigateToDetail(inventoryId: String) {
+        db.collection("items")
+            .whereEqualTo("inventory_id", inventoryId)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val laptop = querySnapshot.documents[0].toObject(com.example.texlabinventory.data.model.Laptop::class.java)
+                    if (laptop != null) {
+                        val intent = Intent(this, com.example.texlabinventory.ui.detail.DetailActivity::class.java).apply {
+                            putExtra(com.example.texlabinventory.ui.detail.DetailActivity.EXTRA_LAPTOP, laptop)
+                        }
+                        startActivity(intent)
+                    }
+                } else {
+                    Toast.makeText(this, "Laptop dengan ID '$inventoryId' tidak ditemukan!", Toast.LENGTH_LONG).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Gagal mengambil data: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDashboardBinding.inflate(layoutInflater)
@@ -114,6 +149,11 @@ class DashboardActivity : AppCompatActivity() {
 
         binding.btnNavAkun.setOnClickListener {
             selectMenu(it)
+        }
+
+        binding.btnNavScan.setOnClickListener {
+            val intent = Intent(this, com.example.texlabinventory.ui.ScanActivity::class.java)
+            scanLauncher.launch(intent)
         }
     }
 
