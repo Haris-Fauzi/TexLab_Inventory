@@ -1,5 +1,6 @@
 package com.example.texlabinventory.ui.detail
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
 import android.content.res.Configuration
@@ -30,7 +31,9 @@ import com.example.texlabinventory.databinding.ActivityDetailBinding
 import com.example.texlabinventory.databinding.DialogPinjamItemBinding
 import com.example.texlabinventory.ui.AddLaptopActivity
 import com.example.texlabinventory.ui.adapter.ImageSliderAdapter
+import com.example.texlabinventory.ui.viewModel.GuruViewModel
 import com.example.texlabinventory.ui.viewModel.LaptopViewModel
+import com.example.texlabinventory.ui.viewModel.RuangViewModel
 import com.example.texlabinventory.ui.viewModel.SiswaViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.firestore.FirebaseFirestore
@@ -41,6 +44,8 @@ class DetailActivity : AppCompatActivity() {
     private val viewModel: LaptopViewModel by viewModels()
 
     private val siswaViewModel: SiswaViewModel by viewModels()
+    private val guruViewModel: GuruViewModel by viewModels()
+    private val ruangViewModel: RuangViewModel by viewModels()
 
     companion object {
         const val EXTRA_LAPTOP = "extra_laptop"
@@ -109,14 +114,12 @@ class DetailActivity : AppCompatActivity() {
         val statusColorRes = if (isDipinjam) R.color.status_dipinjam else R.color.status_tersedia
         tvDetailStatus.backgroundTintList = ContextCompat.getColorStateList(this@DetailActivity, statusColorRes)
 
-        val status = laptop.status // Misal: "TERSEDIA" atau "DIPINJAM"
-
-        if (status.equals("TERSEDIA", ignoreCase = true)) {
-            btnBorrow.visibility = View.VISIBLE
-            btnReturn.visibility = View.GONE
-        } else {
+        if (isDipinjam) {
             btnBorrow.visibility = View.GONE
             btnReturn.visibility = View.VISIBLE
+        } else {
+            btnBorrow.visibility = View.VISIBLE
+            btnReturn.visibility = View.GONE
         }
 
         // Panggil Slider Gambar
@@ -206,13 +209,14 @@ class DetailActivity : AppCompatActivity() {
 
         btnReturn.setOnClickListener {
             Toast.makeText(
-                this@DetailActivity, // Ganti 'this' dengan 'this@NamaActivityKamu'
+                this@DetailActivity,
                 "Pengembalian barang hanya dapat dilakukan melalui menu History Peminjaman!",
                 Toast.LENGTH_LONG
             ).show()
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun showBorrowDialog(laptop: Laptop) {
         val dialog = BottomSheetDialog(this)
         val bindingDialog = DialogPinjamItemBinding.inflate(layoutInflater)
@@ -224,10 +228,10 @@ class DetailActivity : AppCompatActivity() {
 
         var selectedSiswa: Siswa? = null
 
-        // Set threshold pencarian minimal 3 karakter
+        // Set threshold pencarian minimal 3 karakter untuk Siswa
         bindingDialog.actvSiswa.threshold = 3
 
-        // Load data siswa
+        // Load data Siswa via ViewModel
         siswaViewModel.siswaState.observe(this) { resource ->
             when (resource) {
                 is Resource.Success -> {
@@ -244,39 +248,98 @@ class DetailActivity : AppCompatActivity() {
 
                     bindingDialog.actvSiswa.setOnItemClickListener { parent, _, position, _ ->
                         val selectedText = parent.getItemAtPosition(position) as String
-                        // Cari object Siswa yang sesuai dari listSiswa
                         selectedSiswa = listSiswa.find { "${it.nama} (${it.nis}) - ${it.kelas}" == selectedText }
                     }
                 }
                 is Resource.Error -> {
                     Toast.makeText(this, "Gagal memuat siswa: ${resource.message}", Toast.LENGTH_SHORT).show()
                 }
-                is Resource.Loading -> {
-                    // Loading state
-                }
+                is Resource.Loading -> { }
             }
         }
 
+        // Load data Ruang via RuangViewModel
+        ruangViewModel.ruangState.observe(this) { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    val listRuang = resource.data?.map { it.nama_ruang }?.filter { it.isNotEmpty() } ?: emptyList()
+                    val adapterRuang = ArrayAdapter(
+                        this,
+                        android.R.layout.simple_dropdown_item_1line,
+                        listRuang
+                    )
+
+                    // Diset ke actvRuang, BUKAN tilRuang
+                    bindingDialog.actvRuang.setAdapter(adapterRuang)
+
+                    // Event agar dropdown langsung muncul saat diklik/difokuskan
+                    bindingDialog.actvRuang.setOnClickListener {
+                        bindingDialog.actvRuang.showDropDown()
+                    }
+                    bindingDialog.actvRuang.setOnTouchListener { _, _ ->
+                        bindingDialog.actvRuang.showDropDown()
+                        false
+                    }
+                }
+                is Resource.Error -> {
+                    Toast.makeText(this, "Gagal memuat ruang: ${resource.message}", Toast.LENGTH_SHORT).show()
+                }
+                is Resource.Loading -> { }
+            }
+        }
+
+        // Load data Guru via GuruViewModel
+        guruViewModel.guruState.observe(this) { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    val listGuru = resource.data?.map { it.nama_guru }?.filter { it.isNotEmpty() } ?: emptyList()
+                    val adapterGuru = ArrayAdapter(
+                        this,
+                        android.R.layout.simple_dropdown_item_1line,
+                        listGuru
+                    )
+
+                    bindingDialog.actvGuru.setAdapter(adapterGuru)
+
+                    // Event agar dropdown langsung muncul saat diklik/difokuskan
+                    bindingDialog.actvGuru.setOnClickListener {
+                        bindingDialog.actvGuru.showDropDown()
+                    }
+                    bindingDialog.actvGuru.setOnTouchListener { _, _ ->
+                        bindingDialog.actvGuru.showDropDown()
+                        false
+                    }
+                }
+                is Resource.Error -> {
+                    Toast.makeText(this, "Gagal memuat guru: ${resource.message}", Toast.LENGTH_SHORT).show()
+                }
+                is Resource.Loading -> { }
+            }
+        }
+
+        // Trigger pencarian data di ViewModel
         siswaViewModel.fetchSiswa()
+        ruangViewModel.fetchRuang()
+        guruViewModel.fetchGuru()
 
         bindingDialog.btnBatalPinjam.setOnClickListener {
             dialog.dismiss()
         }
 
         bindingDialog.btnKonfirmasiPinjam.setOnClickListener {
-            val ruangan = bindingDialog.etRuangan.text.toString().trim()
-            val guru = bindingDialog.etGuru.text.toString().trim()
+            val ruang = bindingDialog.actvRuang.text.toString().trim()
+            val guru = bindingDialog.actvGuru.text.toString().trim()
 
             if (selectedSiswa == null) {
                 Toast.makeText(this, "Pilih siswa peminjam dari daftar rekomendasi!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            if (ruangan.isEmpty() || guru.isEmpty()) {
-                Toast.makeText(this, "Lengkapi ruangan dan guru pengajar!", Toast.LENGTH_SHORT).show()
+            if (ruang.isEmpty() || guru.isEmpty()) {
+                Toast.makeText(this, "Lengkapi ruang dan guru pengajar!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            executeBorrowTransaction(laptop, selectedSiswa!!, ruangan, guru) { success ->
+            executeBorrowTransaction(laptop, selectedSiswa!!, ruang, guru) { success ->
                 if (success) {
                     Toast.makeText(this, "Peminjaman berhasil dicatat!", Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
@@ -293,7 +356,7 @@ class DetailActivity : AppCompatActivity() {
     private fun executeBorrowTransaction(
         laptop: Laptop,
         siswa: Siswa,
-        ruangan: String,
+        ruang: String,
         guru: String,
         onComplete: (Boolean) -> Unit
     ) {
@@ -315,12 +378,12 @@ class DetailActivity : AppCompatActivity() {
 
                 val peminjamanData = hashMapOf(
                     "id" to newBorrowRef.id,
-                    "itemId" to laptop.inventory_id, // Tetap gunakan inventory_id sebagai acuan
+                    "itemId" to laptop.inventory_id,
                     "namaItem" to "${laptop.brand} ${laptop.model}".trim(),
                     "siswaId" to siswa.nis,
                     "namaSiswa" to siswa.nama,
                     "kelasSiswa" to siswa.kelas,
-                    "ruangan" to ruangan,
+                    "ruang" to ruang,
                     "guruPengajar" to guru,
                     "waktuPinjam" to com.google.firebase.Timestamp.now(),
                     "waktuKembali" to null,
@@ -363,17 +426,6 @@ class DetailActivity : AppCompatActivity() {
                 Toast.makeText(this, "Gagal mengubah status: ${exception.message}", Toast.LENGTH_LONG).show()
             }
     }
-
-//    private fun showReturnDialog(laptop: Laptop) {
-//        AlertDialog.Builder(this)
-//            .setTitle("Konfirmasi Pengembalian")
-//            .setMessage("Apakah Anda yakin laptop ${laptop.brand} ${laptop.model} (${laptop.inventory_id}) sudah dikembalikan?")
-//            .setPositiveButton("Ya, Dikembalikan") { _, _ ->
-//                executeReturnTransaction(laptop.inventory_id)
-//            }
-//            .setNegativeButton("Batal", null)
-//            .show()
-//    }
 
     private fun executeReturnTransaction(inventoryId: String) {
         Toast.makeText(this, "Memproses pengembalian...", Toast.LENGTH_SHORT).show()
@@ -472,6 +524,4 @@ class DetailActivity : AppCompatActivity() {
                 }
             }
     }
-
-
 }
