@@ -30,7 +30,9 @@ import com.example.texlabinventory.databinding.ActivityDetailBinding
 import com.example.texlabinventory.databinding.DialogPinjamItemBinding
 import com.example.texlabinventory.ui.AddLaptopActivity
 import com.example.texlabinventory.ui.adapter.ImageSliderAdapter
+import com.example.texlabinventory.ui.viewModel.GuruViewModel
 import com.example.texlabinventory.ui.viewModel.LaptopViewModel
+import com.example.texlabinventory.ui.viewModel.RuangViewModel
 import com.example.texlabinventory.ui.viewModel.SiswaViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.firestore.FirebaseFirestore
@@ -41,6 +43,10 @@ class DetailActivity : AppCompatActivity() {
     private val viewModel: LaptopViewModel by viewModels()
 
     private val siswaViewModel: SiswaViewModel by viewModels()
+
+    private val ruangViewModel: RuangViewModel by viewModels()
+
+    private val guruViewModel: GuruViewModel by viewModels()
 
     companion object {
         const val EXTRA_LAPTOP = "extra_laptop"
@@ -257,15 +263,76 @@ class DetailActivity : AppCompatActivity() {
             }
         }
 
+        // Load data Ruang via RuangViewModel
+        ruangViewModel.ruangState.observe(this) { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    val listRuang = resource.data?.map { it.nama_ruang }?.filter { it.isNotEmpty() } ?: emptyList()
+                    val adapterRuang = ArrayAdapter(
+                        this,
+                        android.R.layout.simple_dropdown_item_1line,
+                        listRuang
+                    )
+
+                    // Diset ke actvRuangan, BUKAN tilRuangan
+                    bindingDialog.actvRuangan.setAdapter(adapterRuang)
+
+                    // Event agar dropdown langsung muncul saat diklik/difokuskan
+                    bindingDialog.actvRuangan.setOnClickListener {
+                        bindingDialog.actvRuangan.showDropDown()
+                    }
+                    bindingDialog.actvRuangan.setOnTouchListener { _, _ ->
+                        bindingDialog.actvRuangan.showDropDown()
+                        false
+                    }
+                }
+                is Resource.Error -> {
+                    Toast.makeText(this, "Gagal memuat ruang: ${resource.message}", Toast.LENGTH_SHORT).show()
+                }
+                is Resource.Loading -> { }
+            }
+        }
+
+        // Load data Guru via GuruViewModel
+        guruViewModel.guruState.observe(this) { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    val listGuru = resource.data?.map { it.nama_guru }?.filter { it.isNotEmpty() } ?: emptyList()
+                    val adapterGuru = ArrayAdapter(
+                        this,
+                        android.R.layout.simple_dropdown_item_1line,
+                        listGuru
+                    )
+
+                    bindingDialog.actvGuru.setAdapter(adapterGuru)
+
+                    // Event agar dropdown langsung muncul saat diklik/difokuskan
+                    bindingDialog.actvGuru.setOnClickListener {
+                        bindingDialog.actvGuru.showDropDown()
+                    }
+                    bindingDialog.actvGuru.setOnTouchListener { _, _ ->
+                        bindingDialog.actvGuru.showDropDown()
+                        false
+                    }
+                }
+                is Resource.Error -> {
+                    Toast.makeText(this, "Gagal memuat guru: ${resource.message}", Toast.LENGTH_SHORT).show()
+                }
+                is Resource.Loading -> { }
+            }
+        }
+
         siswaViewModel.fetchSiswa()
+        ruangViewModel.fetchRuang()
+        guruViewModel.fetchGuru()
 
         bindingDialog.btnBatalPinjam.setOnClickListener {
             dialog.dismiss()
         }
 
         bindingDialog.btnKonfirmasiPinjam.setOnClickListener {
-            val ruangan = bindingDialog.etRuangan.text.toString().trim()
-            val guru = bindingDialog.etGuru.text.toString().trim()
+            val ruangan = bindingDialog.actvRuangan.text.toString().trim()
+            val guru = bindingDialog.actvGuru.text.toString().trim()
 
             if (selectedSiswa == null) {
                 Toast.makeText(this, "Pilih siswa peminjam dari daftar rekomendasi!", Toast.LENGTH_SHORT).show()

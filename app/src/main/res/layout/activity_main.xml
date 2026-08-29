@@ -30,14 +30,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Card Dashboard Ringkasan & Filter Lab (Diperkecil) -->
+        <!-- Card Dashboard Ringkasan & Filter Lab -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardDashboard"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="4dp"
-            app:cardCornerRadius="12dp"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="16dp"
             app:cardElevation="2dp"
             app:strokeWidth="1dp"
             app:strokeColor="#E0E0E0"
@@ -46,148 +46,169 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-            <LinearLayout
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/surface_light"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp">
 
-                <!-- Filter Dropdown Lab -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layoutFilterLab"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    app:boxBackgroundColor="#F5F7FA"
-                    app:boxCornerRadiusBottomEnd="8dp"
-                    app:boxCornerRadiusBottomStart="8dp"
-                    app:boxCornerRadiusTopEnd="8dp"
-                    app:boxCornerRadiusTopStart="8dp"
-                    app:boxStrokeColor="#2196F3"
-                    app:boxStrokeWidth="1dp"
-                    app:endIconTint="#2196F3">
-
-                    <AutoCompleteTextView
-                        android:id="@+id/spinnerFilterLab"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="none"
-                        android:paddingVertical="6dp"
-                        android:text="Semua Lab"
-                        android:textColor="#333333"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- Status Counters (Angka Ringkasan) -->
+                <!-- Baris Atas: Dropdown Filter & Status Counters -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="4"
-                    android:layout_marginBottom="8dp">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                    <!-- Total -->
+                    <!-- Filter Dropdown Lab (Satu Layer, Seamless) -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutFilterLab"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.2"
+                        app:boxBackgroundColor="@android:color/transparent"
+                        app:boxStrokeWidth="0dp"
+                        app:boxStrokeWidthFocused="0dp"
+                        app:hintEnabled="false">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/spinnerFilterLab"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:inputType="none"
+                            android:maxLines="1"
+                            android:paddingEnd="0dp"
+                            android:paddingVertical="4dp"
+                            android:singleLine="true"
+                            android:text="Semua Lab"
+                            android:textColor="@color/text_primary_light"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Status Counters -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/tvCountTotal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="#333333"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Total"
-                            android:textColor="#333333"
-                            android:textSize="11sp" />
-                    </LinearLayout>
+                        android:layout_weight="2.8"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal"
+                        android:weightSum="4">
 
-                    <!-- Tersedia -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/tvCountTersedia"
-                            android:layout_width="wrap_content"
+                        <!-- Total -->
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="#4CAF50"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Tersedia"
-                            android:textColor="#4CAF50"
-                            android:textSize="11sp" />
-                    </LinearLayout>
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
 
-                    <!-- Dipinjam -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/tvCountDipinjam"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="#2196F3"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Dipinjam"
-                            android:textColor="#2196F3"
-                            android:textSize="11sp" />
-                    </LinearLayout>
+                            <TextView
+                                android:id="@+id/tvCountTotal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="53"
+                                android:textColor="@color/text_primary_light"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
 
-                    <!-- Rusak -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/tvCountRusak"
-                            android:layout_width="wrap_content"
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Total"
+                                android:textColor="@color/text_secondary_light"
+                                android:textSize="10sp" />
+                        </LinearLayout>
+
+                        <!-- Tersedia -->
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="#E53935"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-                        <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvCountTersedia"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="48"
+                                android:textColor="@color/status_tersedia"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Tersedia"
+                                android:textColor="@color/status_tersedia"
+                                android:textSize="10sp" />
+                        </LinearLayout>
+
+                        <!-- Dipinjam -->
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="Rusak"
-                            android:textColor="#E53935"
-                            android:textSize="11sp" />
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvCountDipinjam"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="5"
+                                android:textColor="@color/status_dipinjam"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Dipinjam"
+                                android:textColor="@color/status_dipinjam"
+                                android:textSize="10sp" />
+                        </LinearLayout>
+
+                        <!-- Rusak -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvCountRusak"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="#E53935"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Rusak"
+                                android:textColor="#E53935"
+                                android:textSize="10sp" />
+                        </LinearLayout>
+
                     </LinearLayout>
 
                 </LinearLayout>
 
-                <!-- Visual Bar Indicator (Rasio) -->
+                <!-- Progress Bar Super Tipis & Minimalis (Height: 3dp) -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
-                    android:layout_height="6dp"
-                    app:cardCornerRadius="3dp"
+                    android:layout_height="3dp"
+                    android:layout_marginTop="6dp"
+                    app:cardCornerRadius="1.5dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="0dp">
 
@@ -195,7 +216,7 @@
                         android:id="@+id/layoutProgressBarContainer"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#E0E0E0"
+                        android:background="@color/background_light"
                         android:orientation="horizontal"
                         android:weightSum="100">
 
@@ -204,14 +225,14 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="0"
-                            android:background="#4CAF50" />
+                            android:background="@color/status_tersedia" />
 
                         <View
                             android:id="@+id/barDipinjam"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="0"
-                            android:background="#2196F3" />
+                            android:background="@color/status_dipinjam" />
 
                         <View
                             android:id="@+id/barRusak"
@@ -235,12 +256,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             android:hint="Cari ID, Merk, SN, atau Lokasi..."
-            app:boxCornerRadiusBottomEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusBottomEnd="14dp"
+            app:boxCornerRadiusBottomStart="14dp"
+            app:boxCornerRadiusTopEnd="14dp"
+            app:boxCornerRadiusTopStart="14dp"
             app:boxStrokeColor="#2A9D8F"
             app:boxStrokeWidth="1dp"
             app:boxStrokeWidthFocused="1.5dp"
@@ -259,8 +280,8 @@
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:maxLines="1"
-                android:paddingVertical="8dp"
-                android:textSize="12sp" />
+                android:paddingVertical="10dp"
+                android:textSize="13sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Progress Loading -->

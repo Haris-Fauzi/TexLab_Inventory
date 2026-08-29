@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.texlabinventory.databinding.ActivityDashboardBinding
@@ -37,8 +38,45 @@ class DashboardActivity : AppCompatActivity() {
     private var historyListener: ListenerRegistration? = null
     private var dynamicChartListener: ListenerRegistration? = null
 
+    private val itemLocationMap = mutableMapOf<String, String>()
+
     private var selectedDateString: String = ""
     private var activeFilterType: Int = 1
+
+    //scanner fun
+    private val scanLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val scannedBarcode = result.data?.getStringExtra("EXTRA_BARCODE_RESULT")?.trim()
+            if (!scannedBarcode.isNullOrEmpty()) {
+                Toast.makeText(this, "Mencari laptop: $scannedBarcode...", Toast.LENGTH_SHORT).show()
+                fetchLaptopAndNavigateToDetail(scannedBarcode)
+            }
+        }
+    }
+
+    private fun fetchLaptopAndNavigateToDetail(inventoryId: String) {
+        db.collection("items")
+            .whereEqualTo("inventory_id", inventoryId)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val laptop = querySnapshot.documents[0].toObject(com.example.texlabinventory.data.model.Laptop::class.java)
+                    if (laptop != null) {
+                        val intent = Intent(this, com.example.texlabinventory.ui.detail.DetailActivity::class.java).apply {
+                            putExtra(com.example.texlabinventory.ui.detail.DetailActivity.EXTRA_LAPTOP, laptop)
+                        }
+                        startActivity(intent)
+                    }
+                } else {
+                    Toast.makeText(this, "Laptop dengan ID '$inventoryId' tidak ditemukan!", Toast.LENGTH_LONG).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Gagal mengambil data: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,8 +147,14 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
         }
 
-        binding.btnNavAkun.setOnClickListener {
+        binding.btnNavMasterData.setOnClickListener {
             selectMenu(it)
+            startActivity(Intent(this, com.example.texlabinventory.ui.MasterDataActivity::class.java))
+        }
+
+        binding.btnNavScan.setOnClickListener {
+            val intent = Intent(this, com.example.texlabinventory.ui.ScanActivity::class.java)
+            scanLauncher.launch(intent)
         }
     }
 
@@ -118,7 +162,7 @@ class DashboardActivity : AppCompatActivity() {
         binding.btnNavHome.isSelected = (selectedView == binding.btnNavHome)
         binding.btnNavPeminjaman.isSelected = (selectedView == binding.btnNavPeminjaman)
         binding.btnNavInventory.isSelected = (selectedView == binding.btnNavInventory)
-        binding.btnNavAkun.isSelected = (selectedView == binding.btnNavAkun)
+        binding.btnNavMasterData.isSelected = (selectedView == binding.btnNavMasterData)
     }
 
     private fun setupChartFilter() {
@@ -176,10 +220,9 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     // --- HELPER LOGIKA TANGGAL ---
-    // isStrictDate = false -> Akumulatif (<= tanggal terpilih). Untuk Inventaris & Kondisi
-    // isStrictDate = true  -> Tepat Hari Ini (== tanggal terpilih). Untuk Peminjaman
     private fun isDateValidForFilter(doc: DocumentSnapshot, isStrictDate: Boolean): Boolean {
         val timestamp = doc.getTimestamp("created_at")
+            ?: doc.getTimestamp("waktuPinjam")
             ?: doc.getTimestamp("tanggal")
             ?: doc.getTimestamp("tgl_masuk")
             ?: doc.getTimestamp("tgl_pinjam")
@@ -202,12 +245,12 @@ class DashboardActivity : AppCompatActivity() {
         return if (isStrictDate) {
             rawDate.contains(selectedDateString)
         } else {
-            val extractedDate = rawDate.take(10) // Ambil format YYYY-MM-DD
+            val extractedDate = rawDate.take(10)
             extractedDate <= selectedDateString
         }
     }
 
-    // FILTER 1: JUMLAH LAPTOP PER LAB (Akumulatif s/d Tanggal Terpilih)
+    // 1. FILTER 1: JUMLAH LAPTOP PER LAB
     private fun fetchJumlahLaptopReal() {
         dynamicChartListener = db.collection("items").addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
@@ -217,16 +260,15 @@ class DashboardActivity : AppCompatActivity() {
 
             for (doc in snapshot.documents) {
                 if (isDateValidForFilter(doc, isStrictDate = false)) {
-                    val lokasi = doc.getString("lokasi")
-                        ?: doc.getString("lab")
-                        ?: doc.getString("ruangan")
-                        ?: doc.getString("ruang") ?: ""
+                    val location = doc.getString("location")
+                        ?: doc.getString("lokasi")
+                        ?: doc.getString("lab") ?: ""
 
-                    if (lokasi.contains("CAD", ignoreCase = true)) {
+                    if (location.contains("CAD", ignoreCase = true)) {
                         cadCount++
-                    } else if (lokasi.contains("Pemrograman", ignoreCase = true) ||
-                        lokasi.contains("PROG", ignoreCase = true) ||
-                        lokasi.contains("RPL", ignoreCase = true)) {
+                    } else if (location.contains("Pemrograman", ignoreCase = true) ||
+                        location.contains("PROG", ignoreCase = true) ||
+                        location.contains("RPL", ignoreCase = true)) {
                         progCount++
                     }
                 }
@@ -237,18 +279,22 @@ class DashboardActivity : AppCompatActivity() {
                 BarEntry(1f, progCount)
             )
 
+            // Warna dinamis mengikuti tema Light/Dark
+            val dynamicTextColor = ContextCompat.getColor(this, R.color.text_primary_light)
+
             val set = BarDataSet(entries, "Jumlah Laptop").apply {
-                colors = listOf(Color.parseColor("#4F46E5"), Color.parseColor("#06B6D4"))
+                colors = listOf(Color.parseColor("#6366F1"), Color.parseColor("#0EA5E9"))
                 valueFormatter = integerValueFormatter
                 valueTextSize = 12f
-                valueTextColor = Color.BLACK
+                valueTextColor = dynamicTextColor
             }
 
+            binding.barChartLaptop.setDrawValueAboveBar(true)
             updateChartUI(set, arrayOf("Lab CAD", "Lab Pemrograman"))
         }
     }
 
-    // FILTER 2: KONDISI LAPTOP (Baik vs Rusak Stacked s/d Tanggal Terpilih)
+    // 2. FILTER 2: KONDISI LAPTOP (Baik vs Rusak)
     private fun fetchKondisiLaptopReal() {
         dynamicChartListener = db.collection("items").addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
@@ -258,22 +304,20 @@ class DashboardActivity : AppCompatActivity() {
 
             for (doc in snapshot.documents) {
                 if (isDateValidForFilter(doc, isStrictDate = false)) {
-                    val lokasi = doc.getString("lokasi")
-                        ?: doc.getString("lab")
-                        ?: doc.getString("ruangan")
-                        ?: doc.getString("ruang") ?: ""
+                    val location = doc.getString("location")
+                        ?: doc.getString("lokasi")
+                        ?: doc.getString("lab") ?: ""
 
-                    val kondisi = doc.getString("kondisi")
-                        ?: doc.getString("status_kondisi")
-                        ?: doc.getString("status") ?: "BAIK"
+                    val condition = doc.getString("condition")
+                        ?: doc.getString("kondisi") ?: "BAIK"
 
-                    val isBaik = kondisi.equals("BAIK", ignoreCase = true) || kondisi.equals("BAGUS", ignoreCase = true)
+                    val isBaik = condition.equals("BAIK", ignoreCase = true)
 
-                    if (lokasi.contains("CAD", ignoreCase = true)) {
+                    if (location.contains("CAD", ignoreCase = true)) {
                         if (isBaik) cadBaik++ else cadRusak++
-                    } else if (lokasi.contains("Pemrograman", ignoreCase = true) ||
-                        lokasi.contains("PROG", ignoreCase = true) ||
-                        lokasi.contains("RPL", ignoreCase = true)) {
+                    } else if (location.contains("Pemrograman", ignoreCase = true) ||
+                        location.contains("PROG", ignoreCase = true) ||
+                        location.contains("RPL", ignoreCase = true)) {
                         if (isBaik) progBaik++ else progRusak++
                     }
                 }
@@ -284,19 +328,22 @@ class DashboardActivity : AppCompatActivity() {
                 BarEntry(1f, floatArrayOf(progBaik, progRusak))
             )
 
+            val dynamicTextColor = ContextCompat.getColor(this, R.color.text_primary_light)
+
             val set = BarDataSet(entries, "").apply {
-                colors = listOf(Color.parseColor("#10B981"), Color.parseColor("#EF4444"))
+                colors = listOf(Color.parseColor("#10B981"), Color.parseColor("#F43F5E"))
                 stackLabels = arrayOf("Baik", "Rusak")
                 valueFormatter = integerValueFormatter
-                valueTextSize = 12f
-                valueTextColor = Color.WHITE
+                valueTextSize = 11f
+                valueTextColor = dynamicTextColor
             }
 
+            binding.barChartLaptop.setDrawValueAboveBar(false)
             updateChartUI(set, arrayOf("Lab CAD", "Lab Pemrograman"))
         }
     }
 
-    // FILTER 3: PEMINJAMAN (Khusus di Tanggal Terpilih)
+    // 3. FILTER 3: PEMINJAMAN (Khusus di Tanggal Terpilih berdasarkan Lokasi Asli)
     private fun fetchPeminjamanReal() {
         dynamicChartListener = db.collection("peminjaman").addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
@@ -306,18 +353,17 @@ class DashboardActivity : AppCompatActivity() {
 
             for (doc in snapshot.documents) {
                 if (isDateValidForFilter(doc, isStrictDate = true)) {
-                    val lokasi = doc.getString("lab")
-                        ?: doc.getString("lokasi")
-                        ?: doc.getString("ruangan") ?: ""
+                    val itemIdFromLoan = doc.getString("itemId") ?: ""
+                    val lokasiAsliLaptop = itemLocationMap[itemIdFromLoan] ?: ""
 
                     val status = doc.getString("status") ?: ""
                     val isDipinjam = status.equals("DIPINJAM", ignoreCase = true)
 
-                    if (lokasi.contains("CAD", ignoreCase = true)) {
+                    if (lokasiAsliLaptop.contains("CAD", ignoreCase = true)) {
                         if (isDipinjam) cadPinjam++ else cadKembali++
-                    } else if (lokasi.contains("Pemrograman", ignoreCase = true) ||
-                        lokasi.contains("PROG", ignoreCase = true) ||
-                        lokasi.contains("RPL", ignoreCase = true)) {
+                    } else if (lokasiAsliLaptop.contains("Pemrograman", ignoreCase = true) ||
+                        lokasiAsliLaptop.contains("PROG", ignoreCase = true) ||
+                        lokasiAsliLaptop.contains("RPL", ignoreCase = true)) {
                         if (isDipinjam) progPinjam++ else progKembali++
                     }
                 }
@@ -328,15 +374,57 @@ class DashboardActivity : AppCompatActivity() {
                 BarEntry(1f, floatArrayOf(progPinjam, progKembali))
             )
 
+            val dynamicTextColor = ContextCompat.getColor(this, R.color.text_primary_light)
+
             val set = BarDataSet(entries, "").apply {
                 colors = listOf(Color.parseColor("#3B82F6"), Color.parseColor("#F59E0B"))
                 stackLabels = arrayOf("Dipinjam", "Dikembalikan")
                 valueFormatter = integerValueFormatter
-                valueTextSize = 12f
-                valueTextColor = Color.WHITE
+                valueTextSize = 11f
+                valueTextColor = dynamicTextColor
             }
 
+            binding.barChartLaptop.setDrawValueAboveBar(false)
             updateChartUI(set, arrayOf("Lab CAD", "Lab Pemrograman"))
+        }
+    }
+
+    // 4. PENYESUAIAN GAYA CHART (MENDUKUNG DARK/LIGHT MODE DINAMIS)
+    private fun styleChart(chart: BarChart) {
+        chart.apply {
+            description.isEnabled = false
+            setDrawGridBackground(false)
+            setDrawBorders(false)
+
+            val dynamicTextColor = ContextCompat.getColor(this@DashboardActivity, R.color.text_primary_light)
+
+            // Mengatur warna legenda (Kotak keterangan di bawah sumbu X)
+            legend.apply {
+                isEnabled = true
+                textColor = dynamicTextColor
+            }
+
+            xAxis.apply {
+                setDrawGridLines(false)
+                setDrawAxisLine(true)
+                setDrawLabels(true)
+                position = XAxis.XAxisPosition.BOTTOM
+                granularity = 1f
+                axisMinimum = -0.5f
+                textColor = dynamicTextColor
+                textSize = 12f
+            }
+
+            axisLeft.apply {
+                setDrawGridLines(true)
+                setDrawAxisLine(true)
+                setDrawLabels(true)
+                axisMinimum = 0f
+                granularity = 1f
+                textColor = dynamicTextColor
+            }
+
+            axisRight.isEnabled = false
         }
     }
 
@@ -346,13 +434,15 @@ class DashboardActivity : AppCompatActivity() {
             xAxis.labelCount = labels.size
 
             val barData = BarData(dataSet)
-            barData.barWidth = 0.45f
+            barData.barWidth = 0.4f
             data = barData
 
-            fitScreen()
+            axisLeft.resetAxisMaximum()
+            axisLeft.axisMinimum = 0f
+
             notifyDataSetChanged()
             invalidate()
-            animateY(400)
+            animateY(500)
         }
     }
 
@@ -360,6 +450,16 @@ class DashboardActivity : AppCompatActivity() {
         laptopListener = db.collection("items").addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
             binding.tvTotalInventaris.text = snapshot.size().toString()
+
+            itemLocationMap.clear()
+            for (doc in snapshot.documents) {
+                val itemId = doc.getString("inventory_id") ?: ""
+                val originLocation = doc.getString("location") ?: ""
+
+                if (itemId.isNotEmpty()) {
+                    itemLocationMap[itemId] = originLocation
+                }
+            }
 
             val totalDipinjam = snapshot.documents.count { doc ->
                 val status = doc.getString("status")
@@ -376,38 +476,6 @@ class DashboardActivity : AppCompatActivity() {
         historyListener = db.collection("peminjaman").addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
             binding.tvTotalHistory.text = snapshot.size().toString()
-        }
-    }
-
-    private fun styleChart(chart: BarChart) {
-        chart.apply {
-            description.isEnabled = false
-            legend.isEnabled = true
-            setDrawGridBackground(false)
-            setDrawBorders(false)
-            setDrawValueAboveBar(true)
-
-            xAxis.apply {
-                setDrawGridLines(false)
-                setDrawAxisLine(true)
-                setDrawLabels(true)
-                position = XAxis.XAxisPosition.BOTTOM
-                granularity = 1f
-                axisMinimum = -0.5f
-                axisMaximum = 1.5f
-                textColor = Color.BLACK
-                textSize = 12f
-            }
-
-            axisLeft.apply {
-                setDrawGridLines(true)
-                setDrawAxisLine(true)
-                setDrawLabels(true)
-                axisMinimum = 0f
-                granularity = 1f
-            }
-
-            axisRight.isEnabled = false
         }
     }
 

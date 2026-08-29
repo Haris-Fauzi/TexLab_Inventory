@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="260dp"
+    android:height="260dp"
+    android:viewportWidth="260"
+    android:viewportHeight="260">
+
+    <!-- 1. Garis Sisi (Border Tipis Abu-abu Transparan) -->
+    <path
+        android:pathData="M 12,0
+                          L 248,0
+                          A 12,12 0 0,1 260,12
+                          L 260,248
+                          A 12,12 0 0,1 248,260
+                          L 12,260
+                          A 12,12 0 0,1 0,248
+                          L 0,12
+                          A 12,12 0 0,1 12,0 Z"
+        android:strokeWidth="1.5"
+        android:strokeColor="#4DFFFFFF" />
+
+    <!-- 2. Sudut Kiri Atas (Biru Muda) -->
+    <path
+        android:pathData="M 0,32 L 0,12 A 12,12 0 0,1 12,0 L 32,0"
+        android:strokeWidth="4"
+        android:strokeColor="#2196F3"
+        android:strokeLineCap="round" />
+
+    <!-- 3. Sudut Kanan Atas (Biru Muda) -->
+    <path
+        android:pathData="M 228,0 L 248,0 A 12,12 0 0,1 260,12 L 260,32"
+        android:strokeWidth="4"
+        android:strokeColor="#2196F3"
+        android:strokeLineCap="round" />
+
+    <!-- 4. Sudut Kanan Bawah (Biru Muda) -->
+    <path
+        android:pathData="M 260,228 L 260,248 A 12,12 0 0,1 248,260 L 228,260"
+        android:strokeWidth="4"
+        android:strokeColor="#2196F3"
+        android:strokeLineCap="round" />
+
+    <!-- 5. Sudut Kiri Bawah (Biru Muda) -->
+    <path
+        android:pathData="M 32,260 L 12,260 A 12,12 0 0,1 0,248 L 0,228"
+        android:strokeWidth="4"
+        android:strokeColor="#2196F3"
+        android:strokeLineCap="round" />
+
+</vector>

@@ -1,117 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#121212"
-    android:padding="16dp">
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="#121212"
+android:padding="16dp">
 
-    <!-- Header / Judul Halaman -->
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
+<TextView
+    android:id="@+id/tvTitle"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Master Data"
+    android:textColor="@android:color/white"
+    android:textSize="22sp"
+    android:textStyle="bold"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+<!-- Sub-Filter Dropdown Kelas (Hanya untuk Siswa) -->
+<com.google.android.material.textfield.TextInputLayout
+    android:id="@+id/menuSubFilter"
+    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+    android:layout_width="160dp"
+    android:layout_height="wrap_content"
+    android:hint="Kelas"
+    app:hintTextColor="#888888"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
+
+    <AutoCompleteTextView
+        android:id="@+id/spinnerSubFilter"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Master Data"
+        android:inputType="none"
         android:textColor="@android:color/white"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textSize="13sp" />
+</com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Sub-Filter Dropdown (Kanan Atas) -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/menuSubFilter"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="170dp"
-        android:layout_height="wrap_content"
-        android:hint="Filter"
-        app:hintTextColor="#888888"
-        app:boxStrokeColor="#00A8FF"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+<com.google.android.material.chip.ChipGroup
+    android:id="@+id/chipGroupMaster"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="12dp"
+    app:singleSelection="true"
+    app:selectionRequired="true"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/menuSubFilter">
 
-        <AutoCompleteTextView
-            android:id="@+id/spinnerSubFilter"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="none"
-            android:textColor="@android:color/white"
-            android:textSize="14sp" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Filter Utama (Chips) -->
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipGroupMaster"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        app:singleSelection="true"
-        app:selectionRequired="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/menuSubFilter">
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipSiswa"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="Siswa" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipRuangan"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ruangan" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipGuru"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Guru" />
-    </com.google.android.material.chip.ChipGroup>
-
-    <!-- Search Bar -->
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/searchView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:background="@android:color/darker_gray"
-        app:queryHint="Cari data..."
-        app:iconifiedByDefault="false"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/chipGroupMaster" />
-
-    <!-- List Data (RecyclerView) -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvMasterData"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="12dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/searchView"
-        tools:listitem="@layout/item_siswa" />
-
-    <!-- Tombol Tambah (+) Melayang -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAdd"
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chipSiswa"
+        style="@style/Widget.MaterialComponents.Chip.Choice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:contentDescription="Tambah Data"
-        android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="#00A8FF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:checked="true"
+        android:text="Siswa" />
+
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chipRuangan"
+        style="@style/Widget.MaterialComponents.Chip.Choice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ruangan" />
+
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chipGuru"
+        style="@style/Widget.MaterialComponents.Chip.Choice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Guru" />
+</com.google.android.material.chip.ChipGroup>
+
+<androidx.appcompat.widget.SearchView
+    android:id="@+id/searchView"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:background="@android:color/darker_gray"
+    app:queryHint="Cari data..."
+    app:iconifiedByDefault="false"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/chipGroupMaster" />
+
+<androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/rvMasterData"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:layout_marginTop="12dp"
+    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/searchView"
+    tools:listitem="@layout/item_siswa" />
+
+<com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/fabAdd"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    android:contentDescription="Tambah Data"
+    android:src="@android:drawable/ic_input_add"
+    app:backgroundTint="#00A8FF"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
