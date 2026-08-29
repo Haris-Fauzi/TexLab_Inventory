@@ -100,4 +100,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
     implementation("androidx.core:core-splashscreen:1.0.1")
+
+    //Library Grafik (note:JitPack)
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

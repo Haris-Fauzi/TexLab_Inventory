@@ -126,6 +126,8 @@
                             android:id="@+id/iconInv"
                             android:layout_width="36dp"
                             android:layout_height="36dp"
+                            android:background="@drawable/bg_circle_white_translucent"
+                            android:padding="8dp"
                             android:src="@drawable/inventory"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -428,8 +430,8 @@
                     <com.github.mikephil.charting.charts.BarChart
                         android:id="@+id/barChartLaptop"
                         android:layout_width="match_parent"
-                        android:layout_height="160dp"
-                        android:layout_marginTop="16dp" />
+                        android:layout_height="260dp"
+                        android:layout_marginTop="8dp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -485,8 +487,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:scaleType="centerCrop"
-                                android:src="@android:drawable/ic_menu_slideshow"
-                                app:tint="#475569" />
+                                android:src="@android:drawable/ic_menu_slideshow" />
 
                             <!-- Icon Play Button Melayang di Tengah -->
                             <ImageView
@@ -496,8 +497,7 @@
                                 android:layout_gravity="center"
                                 android:background="@drawable/bg_circle_soft_green"
                                 android:padding="12dp"
-                                android:src="@android:drawable/ic_media_play"
-                                app:tint="#10B981" />
+                                android:src="@android:drawable/ic_media_play" />
                         </FrameLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -548,8 +548,7 @@
                     <ImageView
                         android:layout_width="22dp"
                         android:layout_height="22dp"
-                        android:src="@drawable/ic_home"
-                        app:tint="@color/nav_item_color" />
+                        android:src="@drawable/home" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -575,8 +574,7 @@
                     <ImageView
                         android:layout_width="22dp"
                         android:layout_height="22dp"
-                        android:src="@drawable/borrow"
-                        app:tint="@color/nav_item_color" />
+                        android:src="@drawable/borrow" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -607,8 +605,7 @@
                     <ImageView
                         android:layout_width="22dp"
                         android:layout_height="22dp"
-                        android:src="@drawable/inventory"
-                        app:tint="@color/nav_item_color" />
+                        android:src="@drawable/inventory" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -633,8 +630,7 @@
                     <ImageView
                         android:layout_width="22dp"
                         android:layout_height="22dp"
-                        android:src="@drawable/student"
-                        app:tint="@color/nav_item_color" />
+                        android:src="@drawable/student" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -688,8 +684,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:contentDescription="Scan QR Code"
-                    android:src="@drawable/scan"
-                    app:tint="?attr/colorOnPrimary" />
+                    android:src="@drawable/scan" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
