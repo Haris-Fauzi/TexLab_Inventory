@@ -143,12 +143,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupFilterLab() {
-        val labOptions = arrayOf("Semua Lab", "LAB CAD", "LAB PEMROGRAMAN")
+        val labOptions = arrayOf("Semua Lab", "LAB CAD", "LAB. Pemrograman")
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, labOptions)
         binding.spinnerFilterLab.setAdapter(adapter)
 
+        // 1. Tampilkan semua daftar opsi saat diklik tanpa ter-filter teks yang terpilih
+        binding.spinnerFilterLab.setOnClickListener {
+            adapter.filter.filter(null)
+            binding.spinnerFilterLab.showDropDown()
+        }
+
+        // 2. Gunakan setText dengan parameter filter = false agar teks terpilih terpasang tanpa memotong daftar adapter
         binding.spinnerFilterLab.setOnItemClickListener { _, _, position, _ ->
             selectedLabFilter = labOptions[position]
+            binding.spinnerFilterLab.setText(selectedLabFilter, false)
             applyLabAndSearchFilter()
         }
     }
@@ -204,13 +212,20 @@ class MainActivity : AppCompatActivity() {
         var rusak = 0
 
         for (laptop in list) {
-            val status = laptop.status.orEmpty()
-            val condition = laptop.condition.orEmpty()
+            val cleanStatus = laptop.status.orEmpty().trim()
+            val cleanCondition = laptop.condition.orEmpty().trim()
 
             when {
-                status.contains("TERSEDIA", ignoreCase = true) -> tersedia++
-                status.contains("DIPINJAM", ignoreCase = true) || status.contains("PINJAM", ignoreCase = true) -> dipinjam++
-                condition.contains("RUSAK", ignoreCase = true) || status.contains("RUSAK", ignoreCase = true) -> rusak++
+                // Prioritas 1: Cek apakah status/kondisi mengandung kata RUSAK
+                cleanCondition.contains("RUSAK", ignoreCase = true) ||
+                        cleanStatus.contains("RUSAK", ignoreCase = true) -> rusak++
+
+                // Prioritas 2: Cek status Dipinjam
+                cleanStatus.contains("DIPINJAM", ignoreCase = true) ||
+                        cleanStatus.contains("PINJAM", ignoreCase = true) -> dipinjam++
+
+                // Prioritas 3: Cek status Tersedia
+                cleanStatus.contains("TERSEDIA", ignoreCase = true) -> tersedia++
             }
         }
 
