@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
@@ -20,11 +22,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.texlabinventory.data.model.Laptop // Pastikan path model Laptop benar
 import com.example.texlabinventory.data.utils.CloudinaryHelper
 import com.example.texlabinventory.data.utils.Resource
 import com.example.texlabinventory.databinding.ActivityMainBinding
 import com.example.texlabinventory.ui.AddLaptopActivity
-import com.example.texlabinventory.ui.HistoryPeminjamanActivity // Import HistoryPeminjamanActivity
+import com.example.texlabinventory.ui.HistoryPeminjamanActivity
 import com.example.texlabinventory.ui.SiswaActivity
 import com.example.texlabinventory.ui.adapter.LaptopAdapter
 import com.example.texlabinventory.ui.detail.DetailActivity
@@ -37,6 +40,10 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: LaptopViewModel by viewModels()
     private lateinit var laptopAdapter: LaptopAdapter
     private lateinit var toggle: ActionBarDrawerToggle
+
+    // Menyimpan Master Data Laptop dari Firebase
+    private var allLaptopList: List<Laptop> = emptyList()
+    private var selectedLabFilter: String = "Semua Lab"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -56,6 +63,7 @@ class MainActivity : AppCompatActivity() {
 
         setupNavigationDrawer()
         setupRecyclerView()
+        setupFilterLab()
         setupSearch()
         setupBackPressed()
         observeViewModel()
@@ -79,14 +87,10 @@ class MainActivity : AppCompatActivity() {
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        // 1. Matikan tint warna agar icon PNG tampil warna aslinya
         binding.navigationView.itemIconTintList = null
 
-        // 2. Set listener klik pada Header Navigation (Logo / Teks) untuk kembali ke Dashboard
         val headerView = binding.navigationView.getHeaderView(0)
-
-        // Menggunakan ID ImageView/TextView yang ada di nav_header.xml
-        val ivLogoHeader = headerView.findViewById<View>(R.id.ivNavLogo) // Ganti id sesuai xml kamu
+        val ivLogoHeader = headerView.findViewById<View>(R.id.ivNavLogo)
         ivLogoHeader?.setOnClickListener {
             val intent = Intent(this, DashboardActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -106,7 +110,6 @@ class MainActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
                 R.id.nav_history -> {
-                    // Pindah ke HistoryPeminjamanActivity
                     val intent = Intent(this, HistoryPeminjamanActivity::class.java)
                     startActivity(intent)
                 }
@@ -139,21 +142,104 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupSearch() {
-        binding.etSearch.doOnTextChanged { text, _, _, _ ->
-            applyCurrentFilter(text.toString())
+    private fun setupFilterLab() {
+        val labOptions = arrayOf("Semua Lab", "LAB CAD", "LAB PEMROGRAMAN")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, labOptions)
+        binding.spinnerFilterLab.setAdapter(adapter)
+
+        binding.spinnerFilterLab.setOnItemClickListener { _, _, position, _ ->
+            selectedLabFilter = labOptions[position]
+            applyLabAndSearchFilter()
         }
     }
 
-    private fun applyCurrentFilter(query: String) {
-        laptopAdapter.filter(query) { isEmpty ->
-            if (isEmpty) {
-                binding.layoutEmptyState.visibility = View.VISIBLE
-                binding.rvLaptop.visibility = View.GONE
-            } else {
-                binding.layoutEmptyState.visibility = View.GONE
-                binding.rvLaptop.visibility = View.VISIBLE
+    private fun setupSearch() {
+        binding.etSearch.doOnTextChanged { _, _, _, _ ->
+            applyLabAndSearchFilter()
+        }
+    }
+
+    private fun applyLabAndSearchFilter() {
+        val searchQuery = binding.etSearch.text.toString().trim().lowercase()
+
+        // 1. Filter List berdasarkan Lokasi Lab
+        val filteredByLab = if (selectedLabFilter == "Semua Lab") {
+            allLaptopList
+        } else {
+            allLaptopList.filter { laptop ->
+                laptop.location.equals(selectedLabFilter, ignoreCase = true)
             }
+        }
+
+        // 2. Hitung statistik dashboard berdasarkan lokasi lab terpilih
+        updateDashboardStats(filteredByLab)
+
+        // 3. Filter berdasarkan pencarian keyword
+        val finalFilteredList = if (searchQuery.isEmpty()) {
+            filteredByLab
+        } else {
+            filteredByLab.filter { laptop ->
+                laptop.inventory_id.lowercase().contains(searchQuery) ||
+                        laptop.brand.lowercase().contains(searchQuery) ||
+                        laptop.serial_number.lowercase().contains(searchQuery) ||
+                        laptop.location.lowercase().contains(searchQuery)
+            }
+        }
+
+        // 4. Update Adapter dan Empty State
+        laptopAdapter.updateData(finalFilteredList)
+        if (finalFilteredList.isEmpty()) {
+            binding.layoutEmptyState.visibility = View.VISIBLE
+            binding.rvLaptop.visibility = View.GONE
+        } else {
+            binding.layoutEmptyState.visibility = View.GONE
+            binding.rvLaptop.visibility = View.VISIBLE
+        }
+    }
+
+    private fun updateDashboardStats(list: List<Laptop>) {
+        val total = list.size
+        var tersedia = 0
+        var dipinjam = 0
+        var rusak = 0
+
+        for (laptop in list) {
+            val status = laptop.status.orEmpty()
+            val condition = laptop.condition.orEmpty()
+
+            when {
+                status.contains("TERSEDIA", ignoreCase = true) -> tersedia++
+                status.contains("DIPINJAM", ignoreCase = true) || status.contains("PINJAM", ignoreCase = true) -> dipinjam++
+                condition.contains("RUSAK", ignoreCase = true) || status.contains("RUSAK", ignoreCase = true) -> rusak++
+            }
+        }
+
+        // 1. Update Teks Angka melalui Direct Binding (Anti-Crash)
+        binding.tvCountTotal.text = total.toString()
+        binding.tvCountTersedia.text = tersedia.toString()
+        binding.tvCountDipinjam.text = dipinjam.toString()
+        binding.tvCountRusak.text = rusak.toString()
+
+        // 2. Perhitungan Lebar Garis Visual (Ratio Bar)
+        if (total > 0) {
+            val pTersedia = binding.barTersedia.layoutParams as LinearLayout.LayoutParams
+            pTersedia.weight = tersedia.toFloat()
+            binding.barTersedia.layoutParams = pTersedia
+            binding.barTersedia.visibility = if (tersedia > 0) View.VISIBLE else View.GONE
+
+            val pDipinjam = binding.barDipinjam.layoutParams as LinearLayout.LayoutParams
+            pDipinjam.weight = dipinjam.toFloat()
+            binding.barDipinjam.layoutParams = pDipinjam
+            binding.barDipinjam.visibility = if (dipinjam > 0) View.VISIBLE else View.GONE
+
+            val pRusak = binding.barRusak.layoutParams as LinearLayout.LayoutParams
+            pRusak.weight = rusak.toFloat()
+            binding.barRusak.layoutParams = pRusak
+            binding.barRusak.visibility = if (rusak > 0) View.VISIBLE else View.GONE
+        } else {
+            binding.barTersedia.visibility = View.GONE
+            binding.barDipinjam.visibility = View.GONE
+            binding.barRusak.visibility = View.GONE
         }
     }
 
@@ -188,15 +274,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 is Resource.Success -> {
                     binding.progressBar.visibility = View.GONE
-                    if (resource.data.isEmpty()) {
-                        binding.layoutEmptyState.visibility = View.VISIBLE
-                        binding.rvLaptop.visibility = View.GONE
-                    } else {
-                        laptopAdapter.updateData(resource.data)
-
-                        val currentQuery = binding.etSearch.text.toString()
-                        applyCurrentFilter(currentQuery)
-                    }
+                    allLaptopList = resource.data ?: emptyList()
+                    applyLabAndSearchFilter()
                 }
                 is Resource.Error -> {
                     binding.progressBar.visibility = View.GONE

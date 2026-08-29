@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Warna saat item dipilih (Biru) -->
+    <item android:state_selected="true" android:color="#1E88E5" />
+
+    <!-- Warna default / saat tidak dipilih (Putih) -->
+    <item android:color="#8A8A8A" />
+</selector>

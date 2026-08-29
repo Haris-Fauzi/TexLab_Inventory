@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:paddingBottom="90dp">
+        android:paddingBottom="100dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -40,8 +40,8 @@
                         android:id="@+id/ivProfile"
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:scaleType="centerCrop"
-                        android:src="@android:drawable/ic_menu_gallery"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/logo_texlab"
                         app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.SmallComponent"
                         app:strokeColor="?attr/colorPrimary"
                         app:strokeWidth="1dp" />
@@ -85,8 +85,8 @@
                     app:strokeWidth="0dp">
 
                     <ImageView
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:layout_gravity="center"
                         android:contentDescription="Logout"
                         android:src="@drawable/logout" />
@@ -94,7 +94,7 @@
 
             </RelativeLayout>
 
-            <!-- Grid Menu 2 Column (4 Card Statistik) -->
+            <!-- 1. GRID MENU (4 CARD STATISTIK) -->
             <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -102,7 +102,7 @@
                 android:rowCount="2"
                 android:useDefaultMargins="false">
 
-                <!-- Card 1: Data Inventaris (Warna Primary Accent) -->
+                <!-- Card 1: Data Inventaris -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardInventaris"
                     android:layout_width="0dp"
@@ -126,8 +126,6 @@
                             android:id="@+id/iconInv"
                             android:layout_width="36dp"
                             android:layout_height="36dp"
-                            android:background="@drawable/inventory"
-                            android:padding="8dp"
                             android:src="@drawable/inventory"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -175,9 +173,9 @@
                     android:layout_margin="6dp"
                     android:clickable="true"
                     android:focusable="true"
-                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardBackgroundColor="#E0F2FE"
                     app:cardCornerRadius="20dp"
-                    app:cardElevation="2dp"
+                    app:cardElevation="0dp"
                     app:strokeWidth="0dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -200,7 +198,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textColor="?android:attr/textColorPrimary"
+                            android:textColor="#0369A1"
                             android:textSize="22sp"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toTopOf="@id/tvLabelSiswa"
@@ -211,7 +209,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Total Siswa"
-                            android:textColor="?android:attr/textColorSecondary"
+                            android:textColor="#0284C7"
                             android:textSize="12sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent" />
@@ -220,7 +218,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="↗"
-                            android:textColor="?android:attr/textColorPrimary"
+                            android:textColor="#0369A1"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toBottomOf="parent"
@@ -238,9 +236,9 @@
                     android:layout_margin="6dp"
                     android:clickable="true"
                     android:focusable="true"
-                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardBackgroundColor="#FEF3C7"
                     app:cardCornerRadius="20dp"
-                    app:cardElevation="2dp"
+                    app:cardElevation="0dp"
                     app:strokeWidth="0dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -263,7 +261,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textColor="?android:attr/textColorPrimary"
+                            android:textColor="#B45309"
                             android:textSize="22sp"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toTopOf="@id/tvLabelPinjam"
@@ -274,7 +272,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Sedang Dipinjam"
-                            android:textColor="?android:attr/textColorSecondary"
+                            android:textColor="#D97706"
                             android:textSize="12sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent" />
@@ -283,7 +281,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="↗"
-                            android:textColor="?android:attr/textColorPrimary"
+                            android:textColor="#B45309"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toBottomOf="parent"
@@ -301,9 +299,9 @@
                     android:layout_margin="6dp"
                     android:clickable="true"
                     android:focusable="true"
-                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardBackgroundColor="#DCFCE7"
                     app:cardCornerRadius="20dp"
-                    app:cardElevation="2dp"
+                    app:cardElevation="0dp"
                     app:strokeWidth="0dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -326,7 +324,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textColor="?android:attr/textColorPrimary"
+                            android:textColor="#15803D"
                             android:textSize="22sp"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toTopOf="@id/tvLabelHistory"
@@ -337,7 +335,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="History Peminjaman"
-                            android:textColor="?android:attr/textColorSecondary"
+                            android:textColor="#16A34A"
                             android:textSize="12sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent" />
@@ -346,7 +344,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="↗"
-                            android:textColor="?android:attr/textColorPrimary"
+                            android:textColor="#15803D"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toBottomOf="parent"
@@ -356,7 +354,8 @@
 
             </GridLayout>
 
-            <!-- Card Grafik Statistik Peminjaman -->
+            <!-- 2. CARD GRAFIK LAPTOP LAB -->
+            <!-- Card Grafik Statistik Laptop Lab -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardChart"
                 android:layout_width="match_parent"
@@ -373,62 +372,134 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <TextView
-                            android:id="@+id/tvChartTitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Alur Peminjaman"
-                            android:textColor="?android:attr/textColorPrimary"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:paddingHorizontal="10dp"
-                            android:paddingVertical="4dp"
-                            android:text="7 Hari Terakhir ▾"
-                            android:textColor="?android:attr/textColorSecondary"
-                            android:textSize="11sp" />
-                    </RelativeLayout>
-
-                    <LinearLayout
+                    <!-- Header Judul Grafik -->
+                    <TextView
+                        android:id="@+id/tvChartTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:gravity="center_vertical"
+                        android:text="Statistik Peminjaman Laptop"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvChartSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Penggunaan harian unit laptop"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:textSize="11sp" />
+
+                    <!-- Baris Kedua Tombol Filter (Di Bawah Judul) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
                         android:orientation="horizontal">
 
+                        <!-- Tombol Filter 1: Jenis Kategori -->
                         <TextView
+                            android:id="@+id/btnFilterLab"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="+18% "
-                            android:textColor="#2A9D8F"
-                            android:textSize="12sp"
+                            android:layout_marginEnd="8dp"
+                            android:background="?android:attr/selectableItemBackground"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="6dp"
+                            android:text="1. Jumlah Laptop per Lab ▾"
+                            android:textColor="?attr/colorPrimary"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
 
+                        <!-- Tombol Filter 2: Pilih Tanggal -->
                         <TextView
+                            android:id="@+id/btnFilterTanggal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Peningkatan aktivitas lab"
+                            android:background="?android:attr/selectableItemBackground"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="6dp"
+                            android:text="27/08/2026 📅"
                             android:textColor="?android:attr/textColorSecondary"
-                            android:textSize="12sp" />
+                            android:textSize="11sp" />
                     </LinearLayout>
 
-                    <!-- Dummy Visual Bar Chart -->
-                    <ImageView
+                    <!-- Widget Grafik MPAndroidChart -->
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/barChartLaptop"
                         android:layout_width="match_parent"
-                        android:layout_height="150dp"
-                        android:layout_marginTop="16dp"
-                        android:scaleType="fitCenter"
-                        android:src="@android:drawable/ic_menu_report_image"
-                        app:tint="?attr/colorPrimary" />
+                        android:layout_height="160dp"
+                        android:layout_marginTop="16dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 3. CARD VIDEO TUTORIAL PEMINJAMAN (PALING BAWAH) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardVideoTutorial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="?attr/colorSurface"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Panduan Peminjaman Laptop"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Video singkat alur pinjam &amp; pengembalian"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:textSize="11sp" />
+
+                    <!-- Container Video (Bisa diganti VideoView / PlayerView) -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"
+                        android:layout_marginTop="12dp"
+                        app:cardCornerRadius="14dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="#1E293B">
+
+                            <ImageView
+                                android:id="@+id/ivVideoThumbnail"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:src="@android:drawable/ic_menu_slideshow"
+                                app:tint="#475569" />
+
+                            <!-- Icon Play Button Melayang di Tengah -->
+                            <ImageView
+                                android:id="@+id/btnPlayVideo"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:layout_gravity="center"
+                                android:background="@drawable/bg_circle_soft_green"
+                                android:padding="12dp"
+                                android:src="@android:drawable/ic_media_play"
+                                app:tint="#10B981" />
+                        </FrameLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -436,7 +507,7 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Container Navigasi Bawah Minimalis (Khusus Scan) -->
+    <!-- Container Navigasi Bawah Gaya BRImo (5 Menu dengan Floating Scan) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -444,26 +515,146 @@
         android:clipChildren="false"
         android:clipToPadding="false">
 
-        <!-- Bar Navigasi Bawah Utama (Latar Belakang Flat/Bar) -->
+        <!-- Bar Navigasi Bawah Utama -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/bottomNavBar"
             android:layout_width="match_parent"
-            android:layout_height="44dp"
+            android:layout_height="64dp"
             app:cardBackgroundColor="?attr/colorSurface"
             app:cardCornerRadius="0dp"
             app:cardElevation="8dp"
             app:strokeWidth="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent">
 
-        <!-- Border Celah Putih/Surface (Mempertegas Efek Melayang) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <!-- 1. Home (Default selected="true" contoh aktif pertama) -->
+                <LinearLayout
+                    android:id="@+id/btnNavHome"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_home"
+                        app:tint="@color/nav_item_color" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Home"
+                        android:textColor="@color/nav_item_color"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- 2. Peminjaman -->
+                <LinearLayout
+                    android:id="@+id/btnNavPeminjaman"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/borrow"
+                        app:tint="@color/nav_item_color" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Peminjaman"
+                        android:textColor="@color/nav_item_color"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- 3. Space Kosong Untuk Tombol Floating Scan di Tengah -->
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <!-- 4. Inventory -->
+                <LinearLayout
+                    android:id="@+id/btnNavInventory"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/inventory"
+                        app:tint="@color/nav_item_color" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Inventory"
+                        android:textColor="@color/nav_item_color"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- 5. Akun -->
+                <LinearLayout
+                    android:id="@+id/btnNavAkun"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/student"
+                        app:tint="@color/nav_item_color" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Akun"
+                        android:textColor="@color/nav_item_color"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Ring Outer Surface (Mempertegas Efek Melayang QRIS) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardScanBorder"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             app:cardBackgroundColor="?attr/colorSurface"
-            app:cardCornerRadius="32dp"
+            app:cardCornerRadius="30dp"
             app:cardElevation="10dp"
             app:strokeWidth="0dp"
             app:layout_constraintBottom_toTopOf="@id/bottomNavBar"
@@ -471,16 +662,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/bottomNavBar" />
 
-        <!-- Tombol Utama Scan (Lingkaran Sempurna dengan Shadow Modern) -->
+        <!-- Tombol Scan Floating Center -->
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/fabScan"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:id="@+id/btnNavScan"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
             android:clickable="true"
             android:focusable="true"
             app:cardBackgroundColor="?attr/colorPrimary"
-            app:cardCornerRadius="28dp"
-            app:cardElevation="14dp"
+            app:cardCornerRadius="26dp"
+            app:cardElevation="12dp"
             app:strokeWidth="0dp"
             app:layout_constraintBottom_toBottomOf="@id/cardScanBorder"
             app:layout_constraintEnd_toEndOf="@id/cardScanBorder"
@@ -497,7 +688,8 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:contentDescription="Scan QR Code"
-                    android:src="@drawable/scan" />
+                    android:src="@drawable/scan"
+                    app:tint="?attr/colorOnPrimary" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
