@@ -43,39 +43,83 @@ class DashboardActivity : AppCompatActivity() {
     private var selectedDateString: String = ""
     private var activeFilterType: Int = 1
 
-    //scanner fun
+    // Scanner Launcher yang sudah disanitasi
     private val scanLauncher = registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
-            val scannedBarcode = result.data?.getStringExtra("EXTRA_BARCODE_RESULT")?.trim()
-            if (!scannedBarcode.isNullOrEmpty()) {
+            var scannedBarcode = result.data?.getStringExtra("EXTRA_BARCODE_RESULT") ?: ""
+
+            // 1. Bersihkan enter (\n, \r) dan spasi tidak terlihat
+            scannedBarcode = scannedBarcode.replace("\n", "").replace("\r", "").trim()
+
+            // 2. Jika isi QR Code berupa URL (contoh: https://domain.com/LTP-001), ambil ID di bagian akhir
+            if (scannedBarcode.contains("/")) {
+                scannedBarcode = scannedBarcode.substringAfterLast("/")
+            }
+
+            if (scannedBarcode.isNotEmpty()) {
                 Toast.makeText(this, "Mencari laptop: $scannedBarcode...", Toast.LENGTH_SHORT).show()
                 fetchLaptopAndNavigateToDetail(scannedBarcode)
+            } else {
+                Toast.makeText(this, "Hasil scan kosong!", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun fetchLaptopAndNavigateToDetail(inventoryId: String) {
-        db.collection("items")
-            .whereEqualTo("inventory_id", inventoryId)
+        val collectionRef = db.collection("items")
+
+        // Query 1: Pencarian Exact Match
+        collectionRef.whereEqualTo("inventory_id", inventoryId)
             .get()
             .addOnSuccessListener { querySnapshot ->
                 if (!querySnapshot.isEmpty) {
-                    val laptop = querySnapshot.documents[0].toObject(com.example.texlabinventory.data.model.Laptop::class.java)
-                    if (laptop != null) {
-                        val intent = Intent(this, com.example.texlabinventory.ui.detail.DetailActivity::class.java).apply {
-                            putExtra(com.example.texlabinventory.ui.detail.DetailActivity.EXTRA_LAPTOP, laptop)
-                        }
-                        startActivity(intent)
-                    }
+                    navigateToDetail(querySnapshot.documents[0])
                 } else {
-                    Toast.makeText(this, "Laptop dengan ID '$inventoryId' tidak ditemukan!", Toast.LENGTH_LONG).show()
+                    // Query 2: Fallback jika ID di Firestore berformat UPPERCASE (contoh: "LTP-001")
+                    collectionRef.whereEqualTo("inventory_id", inventoryId.uppercase())
+                        .get()
+                        .addOnSuccessListener { upperSnapshot ->
+                            if (!upperSnapshot.isEmpty) {
+                                navigateToDetail(upperSnapshot.documents[0])
+                            } else {
+                                Toast.makeText(this, "Laptop dengan ID '$inventoryId' tidak ditemukan!", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this, "Gagal mengambil data: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
                 }
             }
             .addOnFailureListener { e ->
                 Toast.makeText(this, "Gagal mengambil data: ${e.message}", Toast.LENGTH_LONG).show()
             }
+    }
+
+    private fun navigateToDetail(document: DocumentSnapshot) {
+        val laptop = document.toObject(com.example.texlabinventory.data.model.Laptop::class.java)
+        if (laptop != null) {
+            val isDipinjam = laptop.status.equals("DIPINJAM", ignoreCase = true)
+
+            if (isDipinjam) {
+                // Jika DIPINJAM, arahkan langsung ke HistoryPeminjamanActivity
+                val intent = Intent(this, com.example.texlabinventory.ui.HistoryPeminjamanActivity::class.java).apply {
+                    putExtra("EXTRA_AUTO_RETURN_ITEM_ID", laptop.inventory_id)
+                    putExtra("EXTRA_AUTO_OPEN_RETURN", true)
+                }
+                startActivity(intent)
+            } else {
+                // Jika TERSEDIA, buka DetailActivity dan langsung tampilkan dialog pinjam
+                val intent = Intent(this, com.example.texlabinventory.ui.detail.DetailActivity::class.java).apply {
+                    putExtra(com.example.texlabinventory.ui.detail.DetailActivity.EXTRA_LAPTOP, laptop)
+                    putExtra("EXTRA_AUTO_OPEN_LOAN", true)
+                }
+                startActivity(intent)
+            }
+        } else {
+            Toast.makeText(this, "Gagal mengonversi data laptop!", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -307,10 +351,12 @@ class DashboardActivity : AppCompatActivity() {
                         ?: doc.getString("lokasi")
                         ?: doc.getString("lab") ?: ""
 
-                    val condition = doc.getString("condition")
-                        ?: doc.getString("kondisi") ?: "BAIK"
+                    // Mengambil nilai field condition / kondisi
+                    val rawCondition = doc.getString("condition")
+                        ?: doc.getString("kondisi") ?: ""
 
-                    val isBaik = condition.equals("BAIK", ignoreCase = true)
+                    // Logika Wajib: Hanya "BAIK" yang dianggap baik, selain itu (termasuk null/kosong/rusak) dianggap rusak
+                    val isBaik = rawCondition.trim().equals("BAIK", ignoreCase = true)
 
                     if (location.contains("CAD", ignoreCase = true)) {
                         if (isBaik) cadBaik++ else cadRusak++
@@ -322,6 +368,7 @@ class DashboardActivity : AppCompatActivity() {
                 }
             }
 
+            // Stacked Bar Data Entry (Nilai Baik di bawah, Nilai Rusak di atas)
             val entries = arrayListOf(
                 BarEntry(0f, floatArrayOf(cadBaik, cadRusak)),
                 BarEntry(1f, floatArrayOf(progBaik, progRusak))
@@ -330,6 +377,7 @@ class DashboardActivity : AppCompatActivity() {
             val dynamicTextColor = ContextCompat.getColor(this, R.color.text_primary_light)
 
             val set = BarDataSet(entries, "").apply {
+                // Hijau untuk Baik (#10B981), Merah/Pink untuk Rusak (#F43F5E)
                 colors = listOf(Color.parseColor("#10B981"), Color.parseColor("#F43F5E"))
                 stackLabels = arrayOf("Baik", "Rusak")
                 valueFormatter = integerValueFormatter

@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Size
 import android.view.MotionEvent
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -34,7 +33,6 @@ class ScanActivity : AppCompatActivity() {
     private var camera: Camera? = null
     @Volatile private var isScanned = false
 
-    // Konfigurasi Scanner untuk Semua Format Barcode & QR Code (Tanpa enableAutoZoom)
     private val scannerOptions = BarcodeScannerOptions.Builder()
         .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
         .build()
@@ -69,6 +67,12 @@ class ScanActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Reset flag agar siap scan kembali setiap kali halaman terbuka
+        isScanned = false
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -80,9 +84,9 @@ class ScanActivity : AppCompatActivity() {
                 it.setSurfaceProvider(binding.previewView.surfaceProvider)
             }
 
-            // Resolusi tinggi agar QR code kecil/jauh tetap berukuran tajam saat masuk ke pemroses ML
+            // MENGGUNAKAN ASPECT_RATIO alih-alih setTargetResolution agar kompatibel dengan SEMUA HP
             val imageAnalyzer = ImageAnalysis.Builder()
-                .setTargetResolution(Size(1920, 1080))
+                .setTargetAspectRatio(androidx.camera.core.AspectRatio.RATIO_16_9)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
                 .also {
@@ -99,10 +103,9 @@ class ScanActivity : AppCompatActivity() {
                     this, cameraSelector, preview, imageAnalyzer
                 )
 
-                // Menembakkan sedikit perbesaran awal (Linear Zoom 15%) agar QR code dari jarak sedang langsung pas
-                camera?.cameraControl?.setLinearZoom(0.15f)
+                // Zoom ringan 10% agar kamera mudah fokus pada QR berukuran standar
+                camera?.cameraControl?.setLinearZoom(0.10f)
 
-                // Fitur Tap to Focus (Klik area layar untuk menyetel ulang fokus kamera)
                 binding.previewView.setOnTouchListener { _, event ->
                     if (event.action == MotionEvent.ACTION_DOWN) {
                         val factory = binding.previewView.meteringPointFactory

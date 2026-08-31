@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
@@ -28,6 +29,7 @@ import com.example.texlabinventory.R
 import com.example.texlabinventory.data.model.Peminjaman
 import com.example.texlabinventory.data.utils.Resource
 import com.example.texlabinventory.databinding.ActivityHistoryPeminjamanBinding
+import com.example.texlabinventory.databinding.DialogKembalikanItemBinding
 import com.example.texlabinventory.ui.adapter.HistoryPeminjamanAdapter
 import com.example.texlabinventory.ui.viewModel.HistoryPeminjamanViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -53,6 +55,14 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
     private var selectedStatusFilter: String = "SEMUA"
     private var selectedStartDate: Long? = null
     private var selectedEndDate: Long? = null
+
+    // Flag untuk menangani otomatisasi pengembalian dari hasil scan
+    private var isAutoReturnProcessed = false
+
+    companion object {
+        const val EXTRA_AUTO_RETURN_ITEM_ID = "EXTRA_AUTO_RETURN_ITEM_ID"
+        const val EXTRA_AUTO_OPEN_RETURN = "EXTRA_AUTO_OPEN_RETURN"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,10 +100,8 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        // 1. Matikan tint warna agar icon PNG tampil warna aslinya
         binding.navigationView.itemIconTintList = null
 
-        // 2. Set listener klik pada Header Navigation (Logo / Teks) untuk berpindah ke Dashboard
         val headerView = binding.navigationView.getHeaderView(0)
         headerView.setOnClickListener {
             val intent = Intent(this, DashboardActivity::class.java)
@@ -146,17 +154,41 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
     }
 
     private fun showKonfirmasiKembaliDialog(item: Peminjaman) {
-        AlertDialog.Builder(this)
-            .setTitle("Konfirmasi Pengembalian")
-            .setMessage("Apakah Anda yakin ingin mengembalikan barang '${item.itemId} ${item.namaItem}'?")
-            .setPositiveButton("Ya, Kembalikan") { dialog, _ ->
-                viewModel.kembalikanBarang(item)
-                dialog.dismiss()
-            }
-            .setNegativeButton("Batal") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
+        val dialog = BottomSheetDialog(this)
+        val dialogBinding = DialogKembalikanItemBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
+
+        // 1. Transparankan background window dialog
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        // 2. Wajib: Hilangkan background container bawaan BottomSheetDialog
+        dialog.setOnShowListener {
+            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            bottomSheet?.background = null
+        }
+
+        // Format Tanggal
+        val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale("id", "ID"))
+        val tglFormatted = item.waktuPinjam?.toDate()?.let { sdf.format(it) } ?: "-"
+
+        // Set Data ke UI via ViewBinding
+        dialogBinding.tvDialogNamaItem.text = "${item.namaItem ?: "-"} (${item.itemId ?: "-"})"
+        dialogBinding.tvDialogPeminjam.text = item.namaSiswa ?: "-"
+        dialogBinding.tvDialogKelasNis.text = "${item.kelasSiswa ?: "-"} (${item.siswaId ?: "-"})"
+        dialogBinding.tvDialogRuangan.text = item.ruangan ?: "-"
+        dialogBinding.tvDialogWaktuPinjam.text = tglFormatted
+
+        // Event Listener Tombol
+        dialogBinding.btnDialogBatal.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogBinding.btnDialogKembalikan.setOnClickListener {
+            viewModel.kembalikanBarang(item)
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun setupSearch() {
@@ -181,24 +213,20 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
         val btnReset = dialogView.findViewById<MaterialButton>(R.id.btnReset)
         val btnApply = dialogView.findViewById<MaterialButton>(R.id.btnApply)
 
-        // Variabel lokal sementara saat dialog terbuka
         var tempStartDate = selectedStartDate
         var tempEndDate = selectedEndDate
 
-        // Format teks tanggal jika sudah pernah dipilih sebelumnya
         if (tempStartDate != null && tempEndDate != null) {
             val sdf = SimpleDateFormat("dd MMM yyyy", Locale("id", "ID"))
             etDateRange.setText("${sdf.format(Date(tempStartDate))} - ${sdf.format(Date(tempEndDate))}")
         }
 
-        // Set state Chip sesuai status aktif saat ini
         when (selectedStatusFilter) {
             "DIPINJAM" -> dialogView.findViewById<Chip>(R.id.chipBorrowed)?.isChecked = true
             "DIKEMBALIKAN" -> dialogView.findViewById<Chip>(R.id.chipReturned)?.isChecked = true
             else -> dialogView.findViewById<Chip>(R.id.chipAll)?.isChecked = true
         }
 
-        // Event Klik DatePicker (Material Date Range Picker)
         etDateRange.setOnClickListener {
             val dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
                 .setTitleText("Pilih Rentang Tanggal")
@@ -223,7 +251,6 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
             }
         }
 
-        // Event Klik Reset
         btnReset.setOnClickListener {
             selectedStatusFilter = "SEMUA"
             selectedStartDate = null
@@ -233,7 +260,6 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
             dialog.dismiss()
         }
 
-        // Event Klik Terapkan
         btnApply.setOnClickListener {
             val checkedChipId = cgStatus.checkedChipId
             selectedStatusFilter = when (checkedChipId) {
@@ -254,7 +280,6 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
 
     private fun applyCurrentFilter(query: String) {
         val filteredList = fullList.filter { item ->
-            // 1. Filter Kata Kunci / Search
             val matchesSearch = query.trim().isEmpty() ||
                     (item.namaItem?.contains(query, ignoreCase = true) == true) ||
                     (item.namaSiswa?.contains(query, ignoreCase = true) == true) ||
@@ -263,17 +288,14 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
                     (item.ruangan?.contains(query, ignoreCase = true) == true) ||
                     (item.kelasSiswa?.contains(query, ignoreCase = true) == true)
 
-            // 2. Filter Status Peminjaman
             val matchesStatus = if (selectedStatusFilter == "SEMUA") {
                 true
             } else {
                 item.status.equals(selectedStatusFilter, ignoreCase = true)
             }
 
-            // 3. Filter Rentang Tanggal Pinjam
             val itemTimestamp = item.waktuPinjam?.toDate()?.time ?: 0L
             val matchesDate = if (selectedStartDate != null && selectedEndDate != null) {
-                // Menambahkan 23 jam 59 menit (86399000 ms) ke endDate agar mencakup seluruh hari akhir
                 itemTimestamp in selectedStartDate!!..(selectedEndDate!! + 86399000L)
             } else {
                 true
@@ -326,6 +348,9 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
                     binding.progressBarHistory.visibility = View.GONE
                     fullList = resource.data ?: emptyList()
                     applyCurrentFilter(binding.etSearchHistory.text.toString())
+
+                    // Cek ketersediaan Intent Auto Return dari Scan QR Code
+                    checkAutoOpenReturnFromIntent()
                 }
                 is Resource.Error -> {
                     binding.progressBarHistory.visibility = View.GONE
@@ -348,6 +373,36 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
                     Toast.makeText(this, resource.message, Toast.LENGTH_LONG).show()
                 }
             }
+        }
+    }
+
+    private fun checkAutoOpenReturnFromIntent() {
+        val autoOpenReturn = intent.getBooleanExtra(EXTRA_AUTO_OPEN_RETURN, false)
+        val itemId = intent.getStringExtra(EXTRA_AUTO_RETURN_ITEM_ID)
+
+        if (autoOpenReturn && !itemId.isNullOrEmpty() && !isAutoReturnProcessed) {
+            isAutoReturnProcessed = true
+
+            // Cari data transaksi peminjaman aktif yang berstatus DIPINJAM berdasarkan ID Laptop
+            val activeLoan = fullList.find {
+                it.itemId.equals(itemId, ignoreCase = true) && it.status.equals("DIPINJAM", ignoreCase = true)
+            }
+
+            if (activeLoan != null) {
+                // Tuliskan ID ke kolom pencarian agar daftar terfilter otomatis
+                binding.etSearchHistory.setText(itemId)
+
+                // Munculkan dialog konfirmasi pengembalian
+                binding.root.post {
+                    showKonfirmasiKembaliDialog(activeLoan)
+                }
+            } else {
+                Toast.makeText(this, "Data peminjaman aktif untuk laptop ini tidak ditemukan!", Toast.LENGTH_LONG).show()
+            }
+
+            // Bersihkan extra agar tidak re-trigger saat layar diputar/di-rotate
+            intent.removeExtra(EXTRA_AUTO_OPEN_RETURN)
+            intent.removeExtra(EXTRA_AUTO_RETURN_ITEM_ID)
         }
     }
 

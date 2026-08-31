@@ -41,15 +41,16 @@ class DetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailBinding
     private val viewModel: LaptopViewModel by viewModels()
-
     private val siswaViewModel: SiswaViewModel by viewModels()
-
     private val ruangViewModel: RuangViewModel by viewModels()
-
     private val guruViewModel: GuruViewModel by viewModels()
+
+    private var currentLaptop: Laptop? = null
+    private var isAutoLoanProcessed = false
 
     companion object {
         const val EXTRA_LAPTOP = "extra_laptop"
+        const val EXTRA_AUTO_OPEN_LOAN = "EXTRA_AUTO_OPEN_LOAN"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,20 +58,41 @@ class DetailActivity : AppCompatActivity() {
         binding = ActivityDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 1. Status Bar transparan & responsif terhadap tema
         setupStatusBarTheme()
 
-        // 2. Padding Top menyesuaikan Status Bar
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             view.setPadding(0, statusBarHeight, 0, 0)
             insets
         }
 
-        val laptop = intent.getSerializableExtra(EXTRA_LAPTOP) as? Laptop
-        if (laptop != null) {
+        // Ambil data Laptop (Support Android 13+)
+        currentLaptop = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getSerializableExtra(EXTRA_LAPTOP, Laptop::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getSerializableExtra(EXTRA_LAPTOP) as? Laptop
+        }
+
+        currentLaptop?.let { laptop ->
             setupUI(laptop)
             setupActionButtons(laptop)
+
+            // Cek instruksi otomatis buka peminjaman
+            val autoOpenLoan = intent.getBooleanExtra(EXTRA_AUTO_OPEN_LOAN, false)
+            if (autoOpenLoan && !isAutoLoanProcessed) {
+                isAutoLoanProcessed = true
+                intent.removeExtra(EXTRA_AUTO_OPEN_LOAN) // Hapus flag agar tidak re-trigger saat rotate
+
+                if (laptop.status.equals("TERSEDIA", ignoreCase = true)) {
+                    // Gunakan post agar BottomSheet dipanggil setelah UI utama selesai dirender
+                    binding.root.post {
+                        showBorrowDialog(laptop)
+                    }
+                } else {
+                    Toast.makeText(this, "Laptop sedang dipinjam!", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -81,7 +103,6 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun setupUI(laptop: Laptop) = with(binding) {
-        // Identitas Laptop
         tvDetailId.text = "ID: ${laptop.inventory_id}"
 
         val brandModelText = if (laptop.brand.isNotEmpty()) {
@@ -93,31 +114,25 @@ class DetailActivity : AppCompatActivity() {
 
         tvDetailSN.text = "Serial Number: ${laptop.serial_number}"
 
-        // Lokasi & Aset
         tvDetailLocation.text = "📍 Lokasi: ${laptop.location}"
         tvDetailPicLab.text = "👤 PIC Lab: ${laptop.pic_lab.ifEmpty { "-" }}"
         tvDetailYear.text = "📅 Tahun Pengadaan: ${if (laptop.procurement_year != 0L) laptop.procurement_year else "-"}"
         tvDetailCondition.text = "🛠️ Kondisi Laptop: ${laptop.condition.ifEmpty { "-" }}"
 
-        // Info Charger
         tvDetailChargerStatus.text = "🔌 Status Charger: ${laptop.charger_status.ifEmpty { "-" }}"
         tvDetailChargerCondition.text = "⚡ Kondisi Charger: ${laptop.charger_condition.ifEmpty { "-" }}"
 
-        // Spesifikasi
         tvDetailProcessor.text = "Processor: ${laptop.specs.processor.ifEmpty { "-" }}"
         tvDetailRam.text = "RAM: ${laptop.specs.ram.ifEmpty { "-" }}"
         tvDetailStorage.text = "Penyimpanan: ${laptop.specs.storage.ifEmpty { "-" }}"
 
-        // Badge Status Peminjaman
         val isDipinjam = laptop.status.equals("DIPINJAM", ignoreCase = true)
         tvDetailStatus.text = if (isDipinjam) "DIPINJAM" else "TERSEDIA"
 
         val statusColorRes = if (isDipinjam) R.color.status_dipinjam else R.color.status_tersedia
         tvDetailStatus.backgroundTintList = ContextCompat.getColorStateList(this@DetailActivity, statusColorRes)
 
-        val status = laptop.status // Misal: "TERSEDIA" atau "DIPINJAM"
-
-        if (status.equals("TERSEDIA", ignoreCase = true)) {
+        if (!isDipinjam) {
             btnBorrow.visibility = View.VISIBLE
             btnReturn.visibility = View.GONE
         } else {
@@ -125,7 +140,6 @@ class DetailActivity : AppCompatActivity() {
             btnReturn.visibility = View.VISIBLE
         }
 
-        // Panggil Slider Gambar
         setupImageSlider(laptop.image_url)
     }
 
@@ -212,7 +226,7 @@ class DetailActivity : AppCompatActivity() {
 
         btnReturn.setOnClickListener {
             Toast.makeText(
-                this@DetailActivity, // Ganti 'this' dengan 'this@NamaActivityKamu'
+                this@DetailActivity,
                 "Pengembalian barang hanya dapat dilakukan melalui menu History Peminjaman!",
                 Toast.LENGTH_LONG
             ).show()
@@ -224,16 +238,22 @@ class DetailActivity : AppCompatActivity() {
         val bindingDialog = DialogPinjamItemBinding.inflate(layoutInflater)
         dialog.setContentView(bindingDialog.root)
 
-        // Set info item
+        // 1. Transparankan background window dialog
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        // 2. Hilangkan background container bawaan BottomSheetDialog agar sudut rounded bersih
+        dialog.setOnShowListener {
+            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            bottomSheet?.background = null
+        }
+
         val itemInfo = "${laptop.inventory_id} - ${laptop.brand} ${laptop.model}".trim()
         bindingDialog.etNamaItemPinjam.setText(itemInfo)
 
         var selectedSiswa: Siswa? = null
 
-        // Set threshold pencarian minimal 3 karakter
-        bindingDialog.actvSiswa.threshold = 3
+        bindingDialog.actvSiswa.threshold = 1 // Diturunkan ke 1 agar pencarian siswa lebih mudah
 
-        // Load data siswa
         siswaViewModel.siswaState.observe(this) { resource ->
             when (resource) {
                 is Resource.Success -> {
@@ -250,20 +270,16 @@ class DetailActivity : AppCompatActivity() {
 
                     bindingDialog.actvSiswa.setOnItemClickListener { parent, _, position, _ ->
                         val selectedText = parent.getItemAtPosition(position) as String
-                        // Cari object Siswa yang sesuai dari listSiswa
                         selectedSiswa = listSiswa.find { "${it.nama} (${it.nis}) - ${it.kelas}" == selectedText }
                     }
                 }
                 is Resource.Error -> {
                     Toast.makeText(this, "Gagal memuat siswa: ${resource.message}", Toast.LENGTH_SHORT).show()
                 }
-                is Resource.Loading -> {
-                    // Loading state
-                }
+                is Resource.Loading -> { }
             }
         }
 
-        // Load data Ruang via RuangViewModel
         ruangViewModel.ruangState.observe(this) { resource ->
             when (resource) {
                 is Resource.Success -> {
@@ -274,10 +290,8 @@ class DetailActivity : AppCompatActivity() {
                         listRuang
                     )
 
-                    // Diset ke actvRuangan, BUKAN tilRuangan
                     bindingDialog.actvRuangan.setAdapter(adapterRuang)
 
-                    // Event agar dropdown langsung muncul saat diklik/difokuskan
                     bindingDialog.actvRuangan.setOnClickListener {
                         bindingDialog.actvRuangan.showDropDown()
                     }
@@ -293,7 +307,6 @@ class DetailActivity : AppCompatActivity() {
             }
         }
 
-        // Load data Guru via GuruViewModel
         guruViewModel.guruState.observe(this) { resource ->
             when (resource) {
                 is Resource.Success -> {
@@ -306,7 +319,6 @@ class DetailActivity : AppCompatActivity() {
 
                     bindingDialog.actvGuru.setAdapter(adapterGuru)
 
-                    // Event agar dropdown langsung muncul saat diklik/difokuskan
                     bindingDialog.actvGuru.setOnClickListener {
                         bindingDialog.actvGuru.showDropDown()
                     }
@@ -366,7 +378,6 @@ class DetailActivity : AppCompatActivity() {
     ) {
         val db = FirebaseFirestore.getInstance()
 
-        // 1. Cari dokumen item berdasarkan field inventory_id
         db.collection("items")
             .whereEqualTo("inventory_id", laptop.inventory_id)
             .get()
@@ -382,7 +393,7 @@ class DetailActivity : AppCompatActivity() {
 
                 val peminjamanData = hashMapOf(
                     "id" to newBorrowRef.id,
-                    "itemId" to laptop.inventory_id, // Tetap gunakan inventory_id sebagai acuan
+                    "itemId" to laptop.inventory_id,
                     "namaItem" to "${laptop.brand} ${laptop.model}".trim(),
                     "siswaId" to siswa.nis,
                     "namaSiswa" to siswa.nama,
@@ -394,11 +405,8 @@ class DetailActivity : AppCompatActivity() {
                     "status" to "DIPINJAM"
                 )
 
-                // Execute Batch Update
                 db.runBatch { batch ->
-                    // Simpan Riwayat Peminjaman
                     batch.set(newBorrowRef, peminjamanData)
-                    // Update Status Item di Katalog
                     batch.update(itemDocRef, "status", "DIPINJAM")
                 }.addOnSuccessListener {
                     onComplete(true)
@@ -408,93 +416,6 @@ class DetailActivity : AppCompatActivity() {
             }
             .addOnFailureListener {
                 onComplete(false)
-            }
-    }
-
-    private fun updateBorrowStatus(inventoryId: String, newStatus: String) {
-        Toast.makeText(this, "Memproses perubahan status...", Toast.LENGTH_SHORT).show()
-
-        FirebaseFirestore.getInstance().collection("items")
-            .document(inventoryId)
-            .update("status", newStatus)
-            .addOnSuccessListener {
-                val message = if (newStatus == "DIPINJAM") {
-                    "Berhasil dipinjam!"
-                } else {
-                    "Berhasil dikembalikan!"
-                }
-                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-                refreshDetailData(inventoryId)
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(this, "Gagal mengubah status: ${exception.message}", Toast.LENGTH_LONG).show()
-            }
-    }
-
-//    private fun showReturnDialog(laptop: Laptop) {
-//        AlertDialog.Builder(this)
-//            .setTitle("Konfirmasi Pengembalian")
-//            .setMessage("Apakah Anda yakin laptop ${laptop.brand} ${laptop.model} (${laptop.inventory_id}) sudah dikembalikan?")
-//            .setPositiveButton("Ya, Dikembalikan") { _, _ ->
-//                executeReturnTransaction(laptop.inventory_id)
-//            }
-//            .setNegativeButton("Batal", null)
-//            .show()
-//    }
-
-    private fun executeReturnTransaction(inventoryId: String) {
-        Toast.makeText(this, "Memproses pengembalian...", Toast.LENGTH_SHORT).show()
-        val db = FirebaseFirestore.getInstance()
-
-        // 1. Cari dokumen peminjaman aktif untuk barang ini
-        db.collection("peminjaman")
-            .whereEqualTo("itemId", inventoryId)
-            .whereEqualTo("status", "DIPINJAM")
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                if (querySnapshot.isEmpty) {
-                    // Jika tidak ada catatan peminjaman aktif, cukup update status item
-                    updateItemStatusToTersedia(inventoryId)
-                } else {
-                    // Update batch: ubah status peminjaman & status item
-                    val batch = db.batch()
-
-                    for (doc in querySnapshot.documents) {
-                        val peminjamanRef = db.collection("peminjaman").document(doc.id)
-                        batch.update(peminjamanRef, mapOf(
-                            "status" to "DIKEMBALIKAN",
-                            "waktuKembali" to com.google.firebase.Timestamp.now()
-                        ))
-                    }
-
-                    val itemRef = db.collection("items").document(inventoryId)
-                    batch.update(itemRef, "status", "TERSEDIA")
-
-                    batch.commit()
-                        .addOnSuccessListener {
-                            Toast.makeText(this, "Barang berhasil dikembalikan!", Toast.LENGTH_SHORT).show()
-                            refreshDetailData(inventoryId)
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(this, "Gagal mengembalikan: ${e.message}", Toast.LENGTH_LONG).show()
-                        }
-                }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Gagal mencari data peminjaman: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-    }
-
-    private fun updateItemStatusToTersedia(inventoryId: String) {
-        FirebaseFirestore.getInstance().collection("items")
-            .document(inventoryId)
-            .update("status", "TERSEDIA")
-            .addOnSuccessListener {
-                Toast.makeText(this, "Barang berhasil dikembalikan!", Toast.LENGTH_SHORT).show()
-                refreshDetailData(inventoryId)
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Gagal mengubah status: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 
@@ -522,8 +443,7 @@ class DetailActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        val laptop = intent.getSerializableExtra(EXTRA_LAPTOP) as? Laptop
-        laptop?.let {
+        currentLaptop?.let {
             refreshDetailData(it.inventory_id)
         }
     }
@@ -535,10 +455,11 @@ class DetailActivity : AppCompatActivity() {
             .addOnSuccessListener { querySnapshot ->
                 if (!querySnapshot.isEmpty) {
                     val updatedLaptop = querySnapshot.documents[0].toObject(Laptop::class.java)
-                    updatedLaptop?.let { setupUI(it) }
+                    updatedLaptop?.let {
+                        currentLaptop = it
+                        setupUI(it)
+                    }
                 }
             }
     }
-
-
 }
