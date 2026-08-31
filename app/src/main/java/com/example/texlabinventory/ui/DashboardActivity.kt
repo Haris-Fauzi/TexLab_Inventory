@@ -191,8 +191,9 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
         }
 
-        binding.btnNavAkun.setOnClickListener {
+        binding.btnNavMasterData.setOnClickListener {
             selectMenu(it)
+            startActivity(Intent(this, com.example.texlabinventory.ui.MasterDataActivity::class.java))
         }
 
         binding.btnNavScan.setOnClickListener {
@@ -205,7 +206,7 @@ class DashboardActivity : AppCompatActivity() {
         binding.btnNavHome.isSelected = (selectedView == binding.btnNavHome)
         binding.btnNavPeminjaman.isSelected = (selectedView == binding.btnNavPeminjaman)
         binding.btnNavInventory.isSelected = (selectedView == binding.btnNavInventory)
-        binding.btnNavAkun.isSelected = (selectedView == binding.btnNavAkun)
+        binding.btnNavMasterData.isSelected = (selectedView == binding.btnNavMasterData)
     }
 
     private fun setupChartFilter() {

@@ -618,7 +618,7 @@
 
                 <!-- 5. Akun -->
                 <LinearLayout
-                    android:id="@+id/btnNavAkun"
+                    android:id="@+id/btnNavMasterData"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -630,13 +630,13 @@
                     <ImageView
                         android:layout_width="22dp"
                         android:layout_height="22dp"
-                        android:src="@drawable/student" />
+                        android:src="@android:drawable/ic_menu_agenda" /> <!-- Memakai ikon bawaan sistem Android -->
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Akun"
+                        android:text="Master Data"
                         android:textColor="@color/nav_item_color"
                         android:textSize="10sp" />
                 </LinearLayout>

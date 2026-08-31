@@ -170,12 +170,15 @@ class MainActivity : AppCompatActivity() {
     private fun applyLabAndSearchFilter() {
         val searchQuery = binding.etSearch.text.toString().trim().lowercase()
 
-        // 1. Filter List berdasarkan Lokasi Lab
+        // 1. Filter List berdasarkan Lokasi Lab (Dengan Normalisasi Karakter)
         val filteredByLab = if (selectedLabFilter == "Semua Lab") {
             allLaptopList
         } else {
             allLaptopList.filter { laptop ->
-                laptop.location.equals(selectedLabFilter, ignoreCase = true)
+                val locationInDb = laptop.location.orEmpty().lowercase().replace(".", "").trim()
+                val selectedFilter = selectedLabFilter.lowercase().replace(".", "").trim()
+
+                locationInDb == selectedFilter
             }
         }
 
@@ -187,10 +190,10 @@ class MainActivity : AppCompatActivity() {
             filteredByLab
         } else {
             filteredByLab.filter { laptop ->
-                laptop.inventory_id.lowercase().contains(searchQuery) ||
-                        laptop.brand.lowercase().contains(searchQuery) ||
-                        laptop.serial_number.lowercase().contains(searchQuery) ||
-                        laptop.location.lowercase().contains(searchQuery)
+                laptop.inventory_id.orEmpty().lowercase().contains(searchQuery) ||
+                        laptop.brand.orEmpty().lowercase().contains(searchQuery) ||
+                        laptop.serial_number.orEmpty().lowercase().contains(searchQuery) ||
+                        laptop.location.orEmpty().lowercase().contains(searchQuery)
             }
         }
 
