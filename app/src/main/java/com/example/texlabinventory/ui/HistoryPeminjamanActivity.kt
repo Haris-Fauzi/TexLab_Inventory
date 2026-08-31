@@ -119,8 +119,8 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
                     startActivity(intent)
                     finish()
                 }
-                R.id.nav_siswa -> {
-                    val intent = Intent(this, SiswaActivity::class.java)
+                R.id.nav_master_data -> {
+                    val intent = Intent(this, MasterDataActivity::class.java)
                     startActivity(intent)
                     finish()
                 }

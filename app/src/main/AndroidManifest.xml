@@ -52,7 +52,7 @@
 
         <!-- 6. Halaman Siswa -->
         <activity
-            android:name=".ui.SiswaActivity"
+            android:name=".ui.MasterDataActivity"
             android:exported="false" />
 
         <activity

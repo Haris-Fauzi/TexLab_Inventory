@@ -9,9 +9,9 @@
             android:icon="@drawable/inventory"
             android:title="Data Inventaris" />
         <item
-            android:id="@+id/nav_siswa"
-            android:icon="@drawable/student"
-            android:title="Data Siswa" />
+            android:id="@+id/nav_master_data"
+            android:icon="@drawable/master_data"
+            android:title="Master Data" />
         <item
             android:id="@+id/nav_history"
             android:icon="@drawable/history"

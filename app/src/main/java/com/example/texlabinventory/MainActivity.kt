@@ -28,7 +28,7 @@ import com.example.texlabinventory.data.utils.Resource
 import com.example.texlabinventory.databinding.ActivityMainBinding
 import com.example.texlabinventory.ui.AddLaptopActivity
 import com.example.texlabinventory.ui.HistoryPeminjamanActivity
-import com.example.texlabinventory.ui.SiswaActivity
+import com.example.texlabinventory.ui.MasterDataActivity
 import com.example.texlabinventory.ui.adapter.LaptopAdapter
 import com.example.texlabinventory.ui.detail.DetailActivity
 import com.example.texlabinventory.ui.viewModel.LaptopViewModel
@@ -105,8 +105,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_inventaris -> {
                     // Sudah berada di halaman ini
                 }
-                R.id.nav_siswa -> {
-                    val intent = Intent(this, SiswaActivity::class.java)
+                R.id.nav_master_data -> {
+                    val intent = Intent(this, MasterDataActivity::class.java)
                     startActivity(intent)
                 }
                 R.id.nav_history -> {

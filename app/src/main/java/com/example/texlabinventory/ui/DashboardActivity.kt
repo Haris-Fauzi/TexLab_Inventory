@@ -157,7 +157,7 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         binding.cardSiswa.setOnClickListener {
-            startActivity(Intent(this, com.example.texlabinventory.ui.SiswaActivity::class.java))
+            startActivity(Intent(this, com.example.texlabinventory.ui.MasterDataActivity::class.java))
         }
 
         binding.cardHistory.setOnClickListener {

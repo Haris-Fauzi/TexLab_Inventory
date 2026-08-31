@@ -191,7 +191,7 @@
                             android:layout_height="36dp"
                             android:background="@drawable/bg_circle_soft_green"
                             android:padding="8dp"
-                            android:src="@drawable/student"
+                            android:src="@drawable/master_data"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
@@ -616,7 +616,7 @@
                         android:textSize="10sp" />
                 </LinearLayout>
 
-                <!-- 5. Akun -->
+                <!-- 5. Master Data -->
                 <LinearLayout
                     android:id="@+id/btnNavMasterData"
                     android:layout_width="0dp"
@@ -630,7 +630,7 @@
                     <ImageView
                         android:layout_width="22dp"
                         android:layout_height="22dp"
-                        android:src="@android:drawable/ic_menu_agenda" /> <!-- Memakai ikon bawaan sistem Android -->
+                        android:src="@drawable/master_data" /> <!-- Memakai ikon bawaan sistem Android -->
 
                     <TextView
                         android:layout_width="wrap_content"

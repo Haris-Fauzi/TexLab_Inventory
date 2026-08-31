@@ -1,13 +1,28 @@
 package com.example.texlabinventory.ui
 
+import android.content.Context
+import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
+import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.texlabinventory.DashboardActivity
+import com.example.texlabinventory.LoginActivity
+import com.example.texlabinventory.MainActivity
 import com.example.texlabinventory.R
 import com.example.texlabinventory.data.model.Guru
 import com.example.texlabinventory.data.model.Ruang
@@ -20,10 +35,12 @@ import com.example.texlabinventory.ui.adapter.SiswaAdapter
 import com.example.texlabinventory.ui.viewModel.GuruViewModel
 import com.example.texlabinventory.ui.viewModel.RuangViewModel
 import com.example.texlabinventory.ui.viewModel.SiswaViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 class MasterDataActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMasterDataBinding
+    private lateinit var toggle: ActionBarDrawerToggle
 
     private val siswaViewModel: SiswaViewModel by viewModels()
     private val guruViewModel: GuruViewModel by viewModels()
@@ -39,21 +56,85 @@ class MasterDataActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
         binding = ActivityMasterDataBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Mencegah konten menabrak Status Bar
+        ViewCompat.setOnApplyWindowInsetsListener(binding.mainRoot) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
+            insets
+        }
+
         binding.rvMasterData.layoutManager = LinearLayoutManager(this)
 
+        setupNavigationDrawer()
         setupChipNavigation()
         setupSearchView()
+        setupBackPressed()
         observeViewModels()
 
-        // Default awal: Tampilkan Siswa
         setupSiswaView()
+    }
+
+    private fun setupNavigationDrawer() {
+        setSupportActionBar(binding.toolbarMaster)
+
+        toggle = ActionBarDrawerToggle(
+            this,
+            binding.drawerLayout,
+            binding.toolbarMaster,
+            android.R.string.ok,
+            android.R.string.cancel
+        )
+        binding.drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        binding.navigationView.itemIconTintList = null
+
+        val headerView = binding.navigationView.getHeaderView(0)
+        headerView.setOnClickListener {
+            val intent = Intent(this, DashboardActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            startActivity(intent)
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+        }
+
+        binding.navigationView.setCheckedItem(R.id.nav_master_data)
+
+        binding.navigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_inventaris -> {
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+                R.id.nav_master_data -> {
+                    // Berada di halaman ini
+                }
+                R.id.nav_history -> {
+                    val intent = Intent(this, HistoryPeminjamanActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_logout -> {
+                    FirebaseAuth.getInstance().signOut()
+                    Toast.makeText(this, "Berhasil Logout", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, LoginActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
+                }
+            }
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            true
+        }
     }
 
     private fun setupChipNavigation() {
         binding.chipGroupMaster.setOnCheckedStateChangeListener { _, checkedIds ->
+            binding.etSearchMaster.text?.clear()
             when (checkedIds.firstOrNull()) {
                 R.id.chipSiswa -> setupSiswaView()
                 R.id.chipRuangan -> setupRuanganView()
@@ -95,7 +176,7 @@ class MasterDataActivity : AppCompatActivity() {
 
     // ================= RUANGAN SECTION =================
     private fun setupRuanganView() {
-        binding.menuSubFilter.hint = "Kategori Ruang"
+        binding.menuSubFilter.hint = "Kategori"
         val listKategori = arrayOf("Semua Ruang", "Lab", "Teori")
         val dropdownAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, listKategori)
         binding.spinnerSubFilter.setAdapter(dropdownAdapter)
@@ -123,7 +204,7 @@ class MasterDataActivity : AppCompatActivity() {
 
     // ================= GURU SECTION =================
     private fun setupGuruView() {
-        binding.menuSubFilter.hint = "Jabatan / Role"
+        binding.menuSubFilter.hint = "Jabatan"
         val listFilterGuru = arrayOf("Semua Guru", "Kepala Lab", "Guru Mapel")
         val dropdownAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, listFilterGuru)
         binding.spinnerSubFilter.setAdapter(dropdownAdapter)
@@ -192,20 +273,55 @@ class MasterDataActivity : AppCompatActivity() {
     }
 
     private fun setupSearchView() {
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean = false
+        binding.etSearchMaster.doOnTextChanged { text, _, _, _ ->
+            val query = text.toString()
+            if (binding.chipSiswa.isChecked) {
+                siswaAdapter.filter(query) {}
+            } else if (binding.chipGuru.isChecked) {
+                guruAdapter.filter(query) {}
+            } else if (binding.chipRuangan.isChecked) {
+                ruangAdapter.filter(query) {}
+            }
+        }
+    }
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                val query = newText.orEmpty()
-                if (binding.chipSiswa.isChecked) {
-                    siswaAdapter.filter(query) {}
-                } else if (binding.chipGuru.isChecked) {
-                    guruAdapter.filter(query) {}
-                } else if (binding.chipRuangan.isChecked) {
-                    ruangAdapter.filter(query) {}
+    private fun setupBackPressed() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                } else if (binding.etSearchMaster.hasFocus()) {
+                    hideKeyboardAndUnfocus()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
                 }
-                return true
             }
         })
+    }
+
+    private fun hideKeyboardAndUnfocus() {
+        binding.etSearchMaster.clearFocus()
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.etSearchMaster.windowToken, 0)
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (ev?.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+            if (v is EditText) {
+                val outRect = Rect()
+                v.getGlobalVisibleRect(outRect)
+                if (!outRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                    hideKeyboardAndUnfocus()
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.navigationView.setCheckedItem(R.id.nav_master_data)
     }
 }
