@@ -127,19 +127,38 @@
                             android:inputType="textCapWords" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Kondisi Laptop (Di bawah Brand) -->
+                    <!-- Kondisi Laptop (Dropdown) -->
                     <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:hint="Kondisi Laptop">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/actvCondition"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Catatan Kerusakan (Disembunyikan secara bawaan dengan android:visibility="gone") -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilDamageNotes"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:hint="Kondisi Laptop (misal: Baik / Rusak Ringan)">
+                        android:hint="Catatan Kerusakan"
+                        android:visibility="gone">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etCondition"
+                            android:id="@+id/etDamageNotes"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textCapSentences" />
+                            android:gravity="top|start"
+                            android:inputType="textMultiLine"
+                            android:lines="3" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -169,18 +188,19 @@
                             android:inputType="textCapCharacters" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <!-- Lokasi (Dropdown) -->
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:hint="Lokasi (misal: LAB CAD)">
+                        android:hint="Lokasi">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etLocation"
+                        <AutoCompleteTextView
+                            android:id="@+id/actvLocation"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textCapCharacters" />
+                            android:inputType="none" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>

@@ -97,7 +97,7 @@ class AddLaptopActivity : AppCompatActivity() {
 
         setupStatusBarTheme()
 
-        // 1. PANGGIL SETUP DROPDOWN DI SINI
+        // Setup dropdown Lokasi, Kondisi Laptop, dan Charger Status
         setupDropdowns()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.rootView) { view, insets ->
@@ -122,23 +122,53 @@ class AddLaptopActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupDropdowns() {
+    private fun setupDropdowns() = with(binding) {
+        // 1. Dropdown Lokasi
+        val locationOptions = arrayOf("LAB CAD", "LAB Pemrograman")
+        val locationAdapter = ArrayAdapter(
+            this@AddLaptopActivity,
+            android.R.layout.simple_dropdown_item_1line,
+            locationOptions
+        )
+        actvLocation.setAdapter(locationAdapter)
+
+        // 2. Dropdown Kondisi Laptop
+        val laptopConditionOptions = arrayOf("BAIK", "RUSAK")
+        val conditionAdapter = ArrayAdapter(
+            this@AddLaptopActivity,
+            android.R.layout.simple_dropdown_item_1line,
+            laptopConditionOptions
+        )
+        actvCondition.setAdapter(conditionAdapter)
+
+        // Event listener ketika kondisi dipilih
+        actvCondition.setOnItemClickListener { parent, _, position, _ ->
+            val selected = parent.getItemAtPosition(position).toString()
+            if (selected == "RUSAK") {
+                tilDamageNotes.visibility = View.VISIBLE
+            } else {
+                tilDamageNotes.visibility = View.GONE
+                etDamageNotes.text?.clear()
+            }
+        }
+
+        // 3. Dropdown Charger Status & Condition
         val chargerStatusOptions = arrayOf("Ada Charger", "Tanpa Charger")
         val chargerConditionOptions = arrayOf("Baik/Normal", "Rusak")
 
         val statusAdapter = ArrayAdapter(
-            this,
+            this@AddLaptopActivity,
             android.R.layout.simple_dropdown_item_1line,
             chargerStatusOptions
         )
-        binding.actvChargerStatus.setAdapter(statusAdapter)
+        actvChargerStatus.setAdapter(statusAdapter)
 
-        val conditionAdapter = ArrayAdapter(
-            this,
+        val chargerCondAdapter = ArrayAdapter(
+            this@AddLaptopActivity,
             android.R.layout.simple_dropdown_item_1line,
             chargerConditionOptions
         )
-        binding.actvChargerCondition.setAdapter(conditionAdapter)
+        actvChargerCondition.setAdapter(chargerCondAdapter)
     }
 
     private fun setupStatusBarTheme() {
@@ -158,13 +188,27 @@ class AddLaptopActivity : AppCompatActivity() {
         etBrand.setText(laptop.brand)
         etModel.setText(laptop.model)
         etSN.setText(laptop.serial_number)
-        etLocation.setText(laptop.location)
 
-        etCondition.setText(laptop.condition)
+        // Set Lokasi
+        actvLocation.setText(laptop.location, false)
+
+        // Memecah kembali data condition jika tersimpan dalam format RUSAK: "..."
+        val conditionValue = laptop.condition
+        if (conditionValue.startsWith("RUSAK")) {
+            actvCondition.setText("RUSAK", false)
+            tilDamageNotes.visibility = View.VISIBLE
+
+            // Ekstrak catatan rusak setelah teks "RUSAK: "
+            val note = conditionValue.substringAfter("RUSAK: ", "").removeSurrounding("\"")
+            etDamageNotes.setText(note)
+        } else {
+            actvCondition.setText("BAIK", false)
+            tilDamageNotes.visibility = View.GONE
+        }
+
         etPicLab.setText(laptop.pic_lab)
         etProcurementYear.setText(if (laptop.procurement_year != 0L) laptop.procurement_year.toString() else "")
 
-        // PERBAIKAN: Set teks awal dropdown saat mode edit (tanpa memicu filter)
         actvChargerStatus.setText(laptop.charger_status, false)
         actvChargerCondition.setText(laptop.charger_condition, false)
 
@@ -184,25 +228,38 @@ class AddLaptopActivity : AppCompatActivity() {
         val brand = etBrand.text.toString().trim()
         val model = etModel.text.toString().trim()
         val sn = etSN.text.toString().trim()
-        val location = etLocation.text.toString().trim()
+        val location = actvLocation.text.toString().trim()
 
-        val condition = etCondition.text.toString().trim()
+        val selectedCondition = actvCondition.text.toString().trim()
+        val damageNote = etDamageNotes.text.toString().trim()
+
+        if (inventoryId.isEmpty() || brand.isEmpty() || model.isEmpty()) {
+            Toast.makeText(this@AddLaptopActivity, "ID, Brand, dan Model wajib diisi!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (selectedCondition == "RUSAK" && damageNote.isEmpty()) {
+            Toast.makeText(this@AddLaptopActivity, "Catatan kerusakan wajib diisi jika kondisi RUSAK!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Format data kondisi ke Firestore
+        val finalCondition = if (selectedCondition == "RUSAK") {
+            "RUSAK: \"$damageNote\""
+        } else {
+            "BAIK"
+        }
+
         val picLab = etPicLab.text.toString().trim()
         val procurementYearStr = etProcurementYear.text.toString().trim()
         val procurementYear = procurementYearStr.toLongOrNull() ?: 0L
 
-        // Ambil nilai dari Dropdown
         val chargerStatus = actvChargerStatus.text.toString().trim()
         val chargerCondition = actvChargerCondition.text.toString().trim()
 
         val processor = etProcessor.text.toString().trim()
         val ram = etRam.text.toString().trim()
         val storage = etStorage.text.toString().trim()
-
-        if (inventoryId.isEmpty() || brand.isEmpty() || model.isEmpty()) {
-            Toast.makeText(this@AddLaptopActivity, "ID, Brand, dan Model wajib diisi!", Toast.LENGTH_SHORT).show()
-            return
-        }
 
         setLoading(true)
 
@@ -215,7 +272,7 @@ class AddLaptopActivity : AppCompatActivity() {
                 }
 
                 saveToFirestore(
-                    inventoryId, brand, model, sn, location, condition, picLab,
+                    inventoryId, brand, model, sn, location, finalCondition, picLab,
                     procurementYear, chargerStatus, chargerCondition,
                     processor, ram, storage, finalUrls
                 )
@@ -223,7 +280,7 @@ class AddLaptopActivity : AppCompatActivity() {
         } else {
             val existingUrls = if (isEditMode) existingLaptop?.image_url ?: emptyList() else emptyList()
             saveToFirestore(
-                inventoryId, brand, model, sn, location, condition, picLab,
+                inventoryId, brand, model, sn, location, finalCondition, picLab,
                 procurementYear, chargerStatus, chargerCondition,
                 processor, ram, storage, existingUrls
             )
@@ -264,7 +321,7 @@ class AddLaptopActivity : AppCompatActivity() {
             brand = brand,
             model = model,
             serial_number = sn,
-            condition = condition,
+            condition = condition, // Akan berisi "BAIK" atau "RUSAK: \"...\""
             status = existingLaptop?.status ?: "TERSEDIA",
             location = location,
             pic_lab = picLab,

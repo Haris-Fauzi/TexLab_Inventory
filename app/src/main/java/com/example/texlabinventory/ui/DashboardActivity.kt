@@ -1,7 +1,9 @@
 package com.example.texlabinventory
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -10,6 +12,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.bumptech.glide.Glide
 import com.example.texlabinventory.databinding.ActivityDashboardBinding
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
@@ -22,6 +25,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -42,6 +47,10 @@ class DashboardActivity : AppCompatActivity() {
 
     private var selectedDateString: String = ""
     private var activeFilterType: Int = 1
+
+    // ID Video YouTube murni (11 karakter)
+    private val youtubeVideoId = "gABz6IfEqU0"
+    private val youtubeUrl = "https://www.youtube.com/watch?v=$youtubeVideoId"
 
     // Scanner Launcher yang sudah disanitasi
     private val scanLauncher = registerForActivityResult(
@@ -141,6 +150,7 @@ class DashboardActivity : AppCompatActivity() {
         observeDashboardData()
         setupChartFilter()
         setupDatePicker()
+        setupVideoProfile() // Inisialisasi video profil
 
         styleChart(binding.barChartLaptop)
         loadRealChartData()
@@ -149,6 +159,18 @@ class DashboardActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         selectMenu(binding.btnNavHome)
+    }
+
+    private fun setupVideoProfile() {
+        // Daftarkan YouTubePlayerView ke Lifecycle Activity agar terkelola otomatis (pause/destroy)
+        lifecycle.addObserver(binding.youtubePlayerView)
+
+        binding.youtubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+            override fun onReady(youTubePlayer: YouTubePlayer) {
+                // Memuat video berdasarkan ID (cueVideo = siap diputar, loadVideo = langsung auto play)
+                youTubePlayer.cueVideo(youtubeVideoId, 0f)
+            }
+        })
     }
 
     private fun setupClickListeners() {
@@ -323,7 +345,6 @@ class DashboardActivity : AppCompatActivity() {
                 BarEntry(1f, progCount)
             )
 
-            // Warna dinamis mengikuti tema Light/Dark
             val dynamicTextColor = ContextCompat.getColor(this, R.color.text_primary_light)
 
             val set = BarDataSet(entries, "Jumlah Laptop").apply {
@@ -352,11 +373,9 @@ class DashboardActivity : AppCompatActivity() {
                         ?: doc.getString("lokasi")
                         ?: doc.getString("lab") ?: ""
 
-                    // Mengambil nilai field condition / kondisi
                     val rawCondition = doc.getString("condition")
                         ?: doc.getString("kondisi") ?: ""
 
-                    // Logika Wajib: Hanya "BAIK" yang dianggap baik, selain itu (termasuk null/kosong/rusak) dianggap rusak
                     val isBaik = rawCondition.trim().equals("BAIK", ignoreCase = true)
 
                     if (location.contains("CAD", ignoreCase = true)) {
@@ -369,7 +388,6 @@ class DashboardActivity : AppCompatActivity() {
                 }
             }
 
-            // Stacked Bar Data Entry (Nilai Baik di bawah, Nilai Rusak di atas)
             val entries = arrayListOf(
                 BarEntry(0f, floatArrayOf(cadBaik, cadRusak)),
                 BarEntry(1f, floatArrayOf(progBaik, progRusak))
@@ -378,7 +396,6 @@ class DashboardActivity : AppCompatActivity() {
             val dynamicTextColor = ContextCompat.getColor(this, R.color.text_primary_light)
 
             val set = BarDataSet(entries, "").apply {
-                // Hijau untuk Baik (#10B981), Merah/Pink untuk Rusak (#F43F5E)
                 colors = listOf(Color.parseColor("#10B981"), Color.parseColor("#F43F5E"))
                 stackLabels = arrayOf("Baik", "Rusak")
                 valueFormatter = integerValueFormatter
@@ -446,7 +463,6 @@ class DashboardActivity : AppCompatActivity() {
 
             val dynamicTextColor = ContextCompat.getColor(this@DashboardActivity, R.color.text_primary_light)
 
-            // Mengatur warna legenda (Kotak keterangan di bawah sumbu X)
             legend.apply {
                 isEnabled = true
                 textColor = dynamicTextColor

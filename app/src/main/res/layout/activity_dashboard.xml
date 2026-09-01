@@ -436,9 +436,9 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 3. CARD VIDEO TUTORIAL PEMINJAMAN (PALING BAWAH) -->
+            <!-- CARD VIDEO PROFIL (PALING BAWAH) -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardVideoTutorial"
+                android:id="@+id/cardVideoProfile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -456,7 +456,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Panduan Peminjaman Laptop"
+                        android:text="Video Profil Lab"
                         android:textColor="?android:attr/textColorPrimary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -464,41 +464,25 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Video singkat alur pinjam &amp; pengembalian"
+                        android:text="Tonton video profil dan fasilitas laboratorium kami"
                         android:textColor="?android:attr/textColorSecondary"
                         android:textSize="11sp" />
 
-                    <!-- Container Video (Bisa diganti VideoView / PlayerView) -->
+                    <!-- Container YouTube Player -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
-                        android:layout_height="180dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         app:cardCornerRadius="14dp"
                         app:cardElevation="0dp"
                         app:strokeWidth="0dp">
 
-                        <FrameLayout
+                        <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+                            android:id="@+id/youtubePlayerView"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="#1E293B">
+                            android:layout_height="wrap_content"
+                            app:autoPlay="false" />
 
-                            <ImageView
-                                android:id="@+id/ivVideoThumbnail"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:scaleType="centerCrop"
-                                android:src="@android:drawable/ic_menu_slideshow" />
-
-                            <!-- Icon Play Button Melayang di Tengah -->
-                            <ImageView
-                                android:id="@+id/btnPlayVideo"
-                                android:layout_width="50dp"
-                                android:layout_height="50dp"
-                                android:layout_gravity="center"
-                                android:background="@drawable/bg_circle_soft_green"
-                                android:padding="12dp"
-                                android:src="@android:drawable/ic_media_play" />
-                        </FrameLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                 </LinearLayout>
