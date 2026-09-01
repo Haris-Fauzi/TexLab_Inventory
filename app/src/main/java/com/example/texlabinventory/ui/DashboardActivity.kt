@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import android.widget.MediaController
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
@@ -25,8 +26,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -162,15 +161,47 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun setupVideoProfile() {
-        // Daftarkan YouTubePlayerView ke Lifecycle Activity agar terkelola otomatis (pause/destroy)
-        lifecycle.addObserver(binding.youtubePlayerView)
+        val videoUrl = "https://res.cloudinary.com/aayg63qo/video/upload/q_auto,f_auto/v1788267039/vidssave.com_PROFIL_SMK_TEXMACO_SEMARANG_2022_360P.mp4"
 
-        binding.youtubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
-            override fun onReady(youTubePlayer: YouTubePlayer) {
-                // Memuat video berdasarkan ID (cueVideo = siap diputar, loadVideo = langsung auto play)
-                youTubePlayer.cueVideo(youtubeVideoId, 0f)
+        // URL Thumbnail otomatis dari Cloudinary (mengambil frame detik ke-0)
+        val thumbnailUrl = "https://res.cloudinary.com/aayg63qo/video/upload/so_7/q_auto,f_jpg/v1788267039/vidssave.com_PROFIL_SMK_TEXMACO_SEMARANG_2022_360P.jpg"
+
+        // 1. Muat Thumbnail menggunakan Glide
+        Glide.with(this)
+            .load(thumbnailUrl)
+            .into(binding.imgVideoThumbnail)
+
+        // 2. Setup Video URI
+        val videoUri = Uri.parse(videoUrl)
+        binding.videoViewProfile.setVideoURI(videoUri)
+
+        val mediaController = MediaController(this)
+        mediaController.setAnchorView(binding.videoViewProfile)
+        binding.videoViewProfile.setMediaController(mediaController)
+
+        // 3. Listener saat video disiapkan
+        binding.videoViewProfile.setOnPreparedListener { mediaPlayer ->
+            // Sembunyikan progress loading setelah siap
+            binding.pbVideoLoading.visibility = View.GONE
+            mediaPlayer.isLooping = true
+        }
+
+        // 4. Sembunyikan Thumbnail saat pengguna menekan tombol PLAY
+        binding.videoViewProfile.setOnInfoListener { _, what, _ ->
+            if (what == android.media.MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                // Video mulai dirender/diputar, sembunyikan gambar thumbnail
+                binding.imgVideoThumbnail.visibility = View.GONE
+                true
+            } else {
+                false
             }
-        })
+        }
+
+        binding.videoViewProfile.setOnErrorListener { _, _, _ ->
+            binding.pbVideoLoading.visibility = View.GONE
+            Toast.makeText(this, "Gagal memuat video", Toast.LENGTH_SHORT).show()
+            true
+        }
     }
 
     private fun setupClickListeners() {

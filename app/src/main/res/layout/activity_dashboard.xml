@@ -436,56 +436,42 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- CARD VIDEO PROFIL (PALING BAWAH) -->
+            <!-- Container Video Profile -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardVideoProfile"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardBackgroundColor="?attr/colorSurface"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
+                android:layout_height="200dp"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
                 app:strokeWidth="0dp">
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_height="match_parent"
+                    android:background="#000000">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Video Profil Lab"
-                        android:textColor="?android:attr/textColorPrimary"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Tonton video profil dan fasilitas laboratorium kami"
-                        android:textColor="?android:attr/textColorSecondary"
-                        android:textSize="11sp" />
-
-                    <!-- Container YouTube Player -->
-                    <com.google.android.material.card.MaterialCardView
+                    <!-- 1. VideoView -->
+                    <VideoView
+                        android:id="@+id/videoViewProfile"
                         android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center" />
+
+                    <!-- 2. ImageView untuk Thumbnail / Poster Video -->
+                    <ImageView
+                        android:id="@+id/imgVideoThumbnail"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop" />
+
+                    <!-- 3. Progress Bar Loading -->
+                    <ProgressBar
+                        android:id="@+id/pbVideoLoading"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        app:cardCornerRadius="14dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="0dp">
+                        android:layout_gravity="center" />
 
-                        <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
-                            android:id="@+id/youtubePlayerView"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:autoPlay="false" />
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                </LinearLayout>
+                </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
