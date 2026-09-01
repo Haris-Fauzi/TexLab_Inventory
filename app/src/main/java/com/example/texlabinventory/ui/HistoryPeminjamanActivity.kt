@@ -47,6 +47,7 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityHistoryPeminjamanBinding
     private val viewModel: HistoryPeminjamanViewModel by viewModels()
+
     private lateinit var historyAdapter: HistoryPeminjamanAdapter
     private lateinit var toggle: ActionBarDrawerToggle
     private var fullList: List<Peminjaman> = emptyList()
@@ -62,6 +63,7 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_AUTO_RETURN_ITEM_ID = "EXTRA_AUTO_RETURN_ITEM_ID"
         const val EXTRA_AUTO_OPEN_RETURN = "EXTRA_AUTO_OPEN_RETURN"
+        const val EXTRA_FILTER_STATUS = "EXTRA_FILTER_STATUS"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,6 +85,11 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
         setupFilterButton()
         setupBackPressed()
         observeViewModel()
+
+        // Tangkap intent filter status dari Card (misal dari cardDipinjam di Dashboard)
+        intent.getStringExtra(EXTRA_FILTER_STATUS)?.let { filter ->
+            selectedStatusFilter = filter
+        }
 
         viewModel.fetchHistoryPeminjaman()
     }

@@ -213,6 +213,13 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, com.example.texlabinventory.ui.MasterDataActivity::class.java))
         }
 
+        binding.cardDipinjam.setOnClickListener {
+            val intent = Intent(this, com.example.texlabinventory.ui.HistoryPeminjamanActivity::class.java).apply {
+                putExtra("EXTRA_FILTER_STATUS", "DIPINJAM")
+            }
+            startActivity(intent)
+        }
+
         binding.cardHistory.setOnClickListener {
             startActivity(Intent(this, com.example.texlabinventory.ui.HistoryPeminjamanActivity::class.java))
         }
