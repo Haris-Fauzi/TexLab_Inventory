@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">TexLab Inventory</string>
+
+    <string name="default_web_client_id">1028982155822-2qpa99g9ocqgcpldcsahlttfsh19gl9l.apps.googleusercontent.com</string>
 </resources>

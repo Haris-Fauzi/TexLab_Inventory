@@ -119,4 +119,19 @@ dependencies {
 
     // Android YouTube Player
     implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0")
+
+    // Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
+
+    // Firebase Auth & Firestore
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+
+    // Google Sign-In SDK
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+
+    // --- PERBAIKAN DI SINI ---
+    // Gunakan firebase-appcheck-playintegrity dan firebase-appcheck-debug (atau recaptcha tanpa v3)
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
+    implementation("com.google.firebase:firebase-appcheck-debug")
 }

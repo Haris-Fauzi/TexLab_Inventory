@@ -7,12 +7,49 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:1028982155822:android:29980fbf7979f31b504dbf",
+        "android_client_info": {
+          "package_name": "com.example.realtimefb"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1028982155822-2qpa99g9ocqgcpldcsahlttfsh19gl9l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnqNhxPytwVIJwguD_4tAZt0di1fWPQok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1028982155822-2qpa99g9ocqgcpldcsahlttfsh19gl9l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:1028982155822:android:4c7e36494a460dbb504dbf",
         "android_client_info": {
           "package_name": "com.example.texlabinventory"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "1028982155822-gd3akcd33to8tkctuah018surpevic8a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.texlabinventory",
+            "certificate_hash": "bf905f357b6ceb991f9a891e62fe36aa2c6ba96a"
+          }
+        },
         {
           "client_id": "1028982155822-2qpa99g9ocqgcpldcsahlttfsh19gl9l.apps.googleusercontent.com",
           "client_type": 3
