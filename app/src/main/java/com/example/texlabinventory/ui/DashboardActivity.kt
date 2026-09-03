@@ -224,13 +224,9 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, com.example.texlabinventory.ui.HistoryPeminjamanActivity::class.java))
         }
 
-        binding.cardLogout.setOnClickListener {
-            FirebaseAuth.getInstance().signOut()
-            Toast.makeText(this, "Berhasil Logout", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        binding.cardProfile.setOnClickListener {
+            val intent = Intent(this, com.example.texlabinventory.ui.ActivityProfile::class.java)
             startActivity(intent)
-            finish()
         }
     }
 

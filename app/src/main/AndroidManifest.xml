@@ -77,6 +77,11 @@
 
         <activity android:name=".PendingApprovalActivity" />
 
+        <!-- UI Profile -->
+        <activity
+            android:name=".ui.ActivityProfile"
+            android:exported="false" />
+
     </application>
 
 
