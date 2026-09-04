@@ -1,6 +1,5 @@
 package com.example.texlabinventory
 
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
@@ -15,6 +14,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.example.texlabinventory.databinding.ActivityDashboardBinding
+import com.example.texlabinventory.ui.ProfileActivity
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
@@ -150,9 +150,20 @@ class DashboardActivity : AppCompatActivity() {
         setupChartFilter()
         setupDatePicker()
         setupVideoProfile() // Inisialisasi video profil
+        loadUserProfileHeader()
 
         styleChart(binding.barChartLaptop)
         loadRealChartData()
+
+        binding.ivProfile.setOnClickListener {
+            val intent = Intent(this, com.example.texlabinventory.ui.ProfileActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.cardProfile.setOnClickListener {
+            val intent = Intent(this, com.example.texlabinventory.ui.ProfileActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onResume() {
@@ -225,7 +236,7 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         binding.cardProfile.setOnClickListener {
-            val intent = Intent(this, com.example.texlabinventory.ui.ActivityProfile::class.java)
+            val intent = Intent(this, ProfileActivity::class.java)
             startActivity(intent)
         }
     }
@@ -597,5 +608,24 @@ class DashboardActivity : AppCompatActivity() {
         siswaListener?.remove()
         historyListener?.remove()
         dynamicChartListener?.remove()
+    }
+
+    private fun loadUserProfileHeader() {
+        val user = FirebaseAuth.getInstance().currentUser
+
+        val displayName = user?.displayName
+        if (!displayName.isNullOrEmpty()) {
+            binding.tvWelcomeName.text = displayName
+        }
+
+        // Muat Foto Profil Google ke ImageView di sebelah kanan (ivProfileHeader)
+        val photoUrl = user?.photoUrl
+        if (photoUrl != null) {
+            Glide.with(this)
+                .load(photoUrl)
+                .placeholder(R.drawable.ic_profile)
+                .error(R.drawable.ic_profile)
+                .into(binding.ivProfileHeader) // Mengarah ke foto profil di kanan
+        }
     }
 }

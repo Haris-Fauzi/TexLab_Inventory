@@ -21,12 +21,13 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Header Profile, Salam & Tombol Logout -->
+            <!-- Header Profile, Salam & Tombol Profil -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp">
 
+                <!-- KIRI: Logo Tetap TexLab & Sapaan -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -36,11 +37,12 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
+                    <!-- Logo Bawaan di Kiri -->
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/ivProfile"
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:scaleType="fitCenter"
+                        android:scaleType="centerCrop"
                         android:src="@drawable/logo_texlab"
                         app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.SmallComponent"
                         app:strokeColor="?attr/colorPrimary"
@@ -71,24 +73,25 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Tombol Logout Minimalis Bulat di Pojok Kanan Atas -->
+                <!-- KANAN: Foto Profil Pengguna (Google) di dalam CardView -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardProfile"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:clickable="true"
                     android:focusable="true"
-                    app:cardCornerRadius="22dp"
+                    app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="0dp">
 
+                    <!-- ImageView di dalam CardView kanan untuk foto Google -->
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center"
-                        android:contentDescription="Profil"
+                        android:id="@+id/ivProfileHeader"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
                         android:src="@drawable/ic_profile" />
                 </com.google.android.material.card.MaterialCardView>
 

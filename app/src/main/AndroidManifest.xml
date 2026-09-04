@@ -79,7 +79,7 @@
 
         <!-- UI Profile -->
         <activity
-            android:name=".ui.ActivityProfile"
+            android:name=".ui.ProfileActivity"
             android:exported="false" />
 
     </application>
