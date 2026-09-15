@@ -147,7 +147,7 @@
                         android:id="@+id/tvDetailLocation"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="📍 Lokasi: LAB. Pemrograman"
+                        android:text="📍 Lokasi: LAB. PEMROGRAMAN"
                         android:textColor="?android:attr/textColorPrimary"
                         android:textSize="14sp" />
 

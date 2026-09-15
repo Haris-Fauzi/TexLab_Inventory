@@ -151,9 +151,12 @@ class ScanActivity : AppCompatActivity() {
     }
 
     private fun sendResultBack(barcodeValue: String) {
+        // Sanitasi: Pastikan menghilangkan spasi/newline tersembunyi
+        val sanitizedResult = barcodeValue.trim()
+
         runOnUiThread {
             val intent = Intent().apply {
-                putExtra("EXTRA_BARCODE_RESULT", barcodeValue)
+                putExtra("EXTRA_BARCODE_RESULT", sanitizedResult)
             }
             setResult(RESULT_OK, intent)
             finish()

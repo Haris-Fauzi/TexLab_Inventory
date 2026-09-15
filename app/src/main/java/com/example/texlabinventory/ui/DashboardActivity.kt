@@ -377,7 +377,7 @@ class DashboardActivity : AppCompatActivity() {
 
                     if (location.contains("CAD", ignoreCase = true)) {
                         cadCount++
-                    } else if (location.contains("Pemrograman", ignoreCase = true) ||
+                    } else if (location.contains("PEMROGRAMAN", ignoreCase = true) ||
                         location.contains("PROG", ignoreCase = true) ||
                         location.contains("RPL", ignoreCase = true)) {
                         progCount++
@@ -400,7 +400,7 @@ class DashboardActivity : AppCompatActivity() {
             }
 
             binding.barChartLaptop.setDrawValueAboveBar(true)
-            updateChartUI(set, arrayOf("Lab CAD", "Lab Pemrograman"))
+            updateChartUI(set, arrayOf("LAB. CAD", "LAB. PEMROGRAMAN"))
         }
     }
 
@@ -425,7 +425,7 @@ class DashboardActivity : AppCompatActivity() {
 
                     if (location.contains("CAD", ignoreCase = true)) {
                         if (isBaik) cadBaik++ else cadRusak++
-                    } else if (location.contains("Pemrograman", ignoreCase = true) ||
+                    } else if (location.contains("PEMROGRAMAN", ignoreCase = true) ||
                         location.contains("PROG", ignoreCase = true) ||
                         location.contains("RPL", ignoreCase = true)) {
                         if (isBaik) progBaik++ else progRusak++
@@ -449,7 +449,7 @@ class DashboardActivity : AppCompatActivity() {
             }
 
             binding.barChartLaptop.setDrawValueAboveBar(false)
-            updateChartUI(set, arrayOf("Lab CAD", "Lab Pemrograman"))
+            updateChartUI(set, arrayOf("LAB. CAD", "LAB. PEMROGRAMAN"))
         }
     }
 
@@ -471,7 +471,7 @@ class DashboardActivity : AppCompatActivity() {
 
                     if (lokasiAsliLaptop.contains("CAD", ignoreCase = true)) {
                         if (isDipinjam) cadPinjam++ else cadKembali++
-                    } else if (lokasiAsliLaptop.contains("Pemrograman", ignoreCase = true) ||
+                    } else if (lokasiAsliLaptop.contains("PEMROGRAMAN", ignoreCase = true) ||
                         lokasiAsliLaptop.contains("PROG", ignoreCase = true) ||
                         lokasiAsliLaptop.contains("RPL", ignoreCase = true)) {
                         if (isDipinjam) progPinjam++ else progKembali++
@@ -495,7 +495,7 @@ class DashboardActivity : AppCompatActivity() {
             }
 
             binding.barChartLaptop.setDrawValueAboveBar(false)
-            updateChartUI(set, arrayOf("Lab CAD", "Lab Pemrograman"))
+            updateChartUI(set, arrayOf("LAB. CAD", "LAB. PEMROGRAMAN"))
         }
     }
 

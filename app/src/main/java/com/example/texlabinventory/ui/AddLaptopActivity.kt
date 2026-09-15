@@ -18,7 +18,6 @@ import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.example.texlabinventory.data.model.Laptop
 import com.example.texlabinventory.data.model.Specs
-import com.example.texlabinventory.data.repository.LaptopRepository
 import com.example.texlabinventory.data.utils.Resource
 import com.example.texlabinventory.databinding.ActivityAddLaptopBinding
 import com.example.texlabinventory.ui.viewModel.LaptopViewModel
@@ -28,7 +27,6 @@ class AddLaptopActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddLaptopBinding
     private val viewModel: LaptopViewModel by viewModels()
-    private val repository = LaptopRepository()
 
     private val selectedImageUris = ArrayList<Uri>()
     private var isEditMode = false
@@ -96,8 +94,6 @@ class AddLaptopActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupStatusBarTheme()
-
-        // Setup dropdown Lokasi, Kondisi Laptop, dan Charger Status
         setupDropdowns()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.rootView) { view, insets ->
@@ -123,8 +119,7 @@ class AddLaptopActivity : AppCompatActivity() {
     }
 
     private fun setupDropdowns() = with(binding) {
-        // 1. Dropdown Lokasi
-        val locationOptions = arrayOf("LAB CAD", "LAB Pemrograman")
+        val locationOptions = arrayOf("LAB. CAD", "LAB. PEMROGRAMAN")
         val locationAdapter = ArrayAdapter(
             this@AddLaptopActivity,
             android.R.layout.simple_dropdown_item_1line,
@@ -132,7 +127,6 @@ class AddLaptopActivity : AppCompatActivity() {
         )
         actvLocation.setAdapter(locationAdapter)
 
-        // 2. Dropdown Kondisi Laptop
         val laptopConditionOptions = arrayOf("BAIK", "RUSAK")
         val conditionAdapter = ArrayAdapter(
             this@AddLaptopActivity,
@@ -141,7 +135,6 @@ class AddLaptopActivity : AppCompatActivity() {
         )
         actvCondition.setAdapter(conditionAdapter)
 
-        // Event listener ketika kondisi dipilih
         actvCondition.setOnItemClickListener { parent, _, position, _ ->
             val selected = parent.getItemAtPosition(position).toString()
             if (selected == "RUSAK") {
@@ -152,7 +145,6 @@ class AddLaptopActivity : AppCompatActivity() {
             }
         }
 
-        // 3. Dropdown Charger Status & Condition
         val chargerStatusOptions = arrayOf("Ada Charger", "Tanpa Charger")
         val chargerConditionOptions = arrayOf("Baik/Normal", "Rusak")
 
@@ -189,16 +181,13 @@ class AddLaptopActivity : AppCompatActivity() {
         etModel.setText(laptop.model)
         etSN.setText(laptop.serial_number)
 
-        // Set Lokasi
         actvLocation.setText(laptop.location, false)
 
-        // Memecah kembali data condition jika tersimpan dalam format RUSAK: "..."
         val conditionValue = laptop.condition
         if (conditionValue.startsWith("RUSAK")) {
             actvCondition.setText("RUSAK", false)
             tilDamageNotes.visibility = View.VISIBLE
 
-            // Ekstrak catatan rusak setelah teks "RUSAK: "
             val note = conditionValue.substringAfter("RUSAK: ", "").removeSurrounding("\"")
             etDamageNotes.setText(note)
         } else {
@@ -243,7 +232,6 @@ class AddLaptopActivity : AppCompatActivity() {
             return
         }
 
-        // Format data kondisi ke Firestore
         val finalCondition = if (selectedCondition == "RUSAK") {
             "RUSAK: \"$damageNote\""
         } else {
@@ -263,51 +251,31 @@ class AddLaptopActivity : AppCompatActivity() {
 
         setLoading(true)
 
-        if (selectedImageUris.isNotEmpty()) {
-            uploadMultipleImages(0, ArrayList()) { uploadedUrls ->
-                val finalUrls = if (isEditMode) {
-                    (existingLaptop?.image_url ?: emptyList()) + uploadedUrls
-                } else {
-                    uploadedUrls
-                }
+        val existingUrls = if (isEditMode) existingLaptop?.image_url ?: emptyList() else emptyList()
 
-                saveToFirestore(
-                    inventoryId, brand, model, sn, location, finalCondition, picLab,
-                    procurementYear, chargerStatus, chargerCondition,
-                    processor, ram, storage, finalUrls
-                )
-            }
+        if (selectedImageUris.isNotEmpty()) {
+            viewModel.uploadImagesAndSave(
+                uris = selectedImageUris,
+                existingUrls = existingUrls,
+                onSuccess = { finalUrls ->
+                    saveToFirestore(
+                        inventoryId, brand, model, sn, location, finalCondition, picLab,
+                        procurementYear, chargerStatus, chargerCondition,
+                        processor, ram, storage, finalUrls
+                    )
+                },
+                onError = { errorMessage ->
+                    setLoading(false)
+                    Toast.makeText(this@AddLaptopActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                }
+            )
         } else {
-            val existingUrls = if (isEditMode) existingLaptop?.image_url ?: emptyList() else emptyList()
             saveToFirestore(
                 inventoryId, brand, model, sn, location, finalCondition, picLab,
                 procurementYear, chargerStatus, chargerCondition,
                 processor, ram, storage, existingUrls
             )
         }
-    }
-
-    private fun uploadMultipleImages(
-        index: Int,
-        uploadedUrls: ArrayList<String>,
-        onComplete: (List<String>) -> Unit
-    ) {
-        if (index >= selectedImageUris.size) {
-            onComplete(uploadedUrls)
-            return
-        }
-
-        repository.uploadImageToCloudinary(
-            selectedImageUris[index],
-            onSuccess = { imageUrl ->
-                uploadedUrls.add(imageUrl)
-                uploadMultipleImages(index + 1, uploadedUrls, onComplete)
-            },
-            onError = { error ->
-                setLoading(false)
-                Toast.makeText(this@AddLaptopActivity, "Upload Gambar ke-${index + 1} Gagal: $error", Toast.LENGTH_SHORT).show()
-            }
-        )
     }
 
     private fun saveToFirestore(
@@ -321,7 +289,7 @@ class AddLaptopActivity : AppCompatActivity() {
             brand = brand,
             model = model,
             serial_number = sn,
-            condition = condition, // Akan berisi "BAIK" atau "RUSAK: \"...\""
+            condition = condition,
             status = existingLaptop?.status ?: "TERSEDIA",
             location = location,
             pic_lab = picLab,

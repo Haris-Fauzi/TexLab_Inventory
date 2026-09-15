@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupFilterLab() {
-        val labOptions = arrayOf("Semua Lab", "LAB CAD", "LAB. Pemrograman")
+        val labOptions = arrayOf("Semua Lab", "LAB. CAD", "LAB. PEMROGRAMAN")
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, labOptions)
         binding.spinnerFilterLab.setAdapter(adapter)
 
@@ -169,28 +169,34 @@ class MainActivity : AppCompatActivity() {
 
     private fun applyLabAndSearchFilter() {
         val searchQuery = binding.etSearch.text.toString().trim().lowercase()
+        // Normalisasi input pencarian (menghapus backslash dan strip untuk pembandingan opsional)
+        val normalizedSearchQuery = searchQuery.replace("\\", "").replace("-", "")
 
-        // 1. Filter List berdasarkan Lokasi Lab (Dengan Normalisasi Karakter)
+        // 1. Filter List berdasarkan Lokasi Lab
         val filteredByLab = if (selectedLabFilter == "Semua Lab") {
             allLaptopList
         } else {
             allLaptopList.filter { laptop ->
                 val locationInDb = laptop.location.orEmpty().lowercase().replace(".", "").trim()
                 val selectedFilter = selectedLabFilter.lowercase().replace(".", "").trim()
-
                 locationInDb == selectedFilter
             }
         }
 
-        // 2. Hitung statistik dashboard berdasarkan lokasi lab terpilih
+        // 2. Hitung statistik dashboard
         updateDashboardStats(filteredByLab)
 
-        // 3. Filter berdasarkan pencarian keyword
+        // 3. Filter berdasarkan keyword
         val finalFilteredList = if (searchQuery.isEmpty()) {
             filteredByLab
         } else {
             filteredByLab.filter { laptop ->
-                laptop.inventory_id.orEmpty().lowercase().contains(searchQuery) ||
+                val invId = laptop.inventory_id.orEmpty().lowercase()
+                val normalizedInvId = invId.replace("\\", "").replace("-", "")
+
+                // Cocokkan persis string asli ATAU bentuk yang sudah dinormalisasi
+                invId.contains(searchQuery) ||
+                        normalizedInvId.contains(normalizedSearchQuery) ||
                         laptop.brand.orEmpty().lowercase().contains(searchQuery) ||
                         laptop.serial_number.orEmpty().lowercase().contains(searchQuery) ||
                         laptop.location.orEmpty().lowercase().contains(searchQuery)
