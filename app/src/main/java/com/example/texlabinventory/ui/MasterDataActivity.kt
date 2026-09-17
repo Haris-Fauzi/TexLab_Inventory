@@ -205,7 +205,7 @@ class MasterDataActivity : AppCompatActivity() {
     // ================= GURU SECTION =================
     private fun setupGuruView() {
         binding.menuSubFilter.hint = "Jabatan"
-        val listFilterGuru = arrayOf("Semua Guru", "Kepala Lab", "Guru Mapel")
+        val listFilterGuru = arrayOf("Semua Guru", "Kepala Lab", "Guru")
         val dropdownAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, listFilterGuru)
         binding.spinnerSubFilter.setAdapter(dropdownAdapter)
         binding.spinnerSubFilter.setText(listFilterGuru[0], false)
@@ -220,13 +220,31 @@ class MasterDataActivity : AppCompatActivity() {
     }
 
     private fun filterGuruByRole(role: String) {
-        if (role == "Semua Guru") {
-            guruAdapter.setData(originalGuruList)
-        } else {
-            val filtered = originalGuruList.filter {
-                it.nama_guru.contains(role, ignoreCase = true)
+        when (role) {
+            "Semua Guru" -> {
+                guruAdapter.setData(originalGuruList)
             }
-            guruAdapter.setData(filtered)
+            "Kepala Lab" -> {
+                // Menyaring guru yang ket_guru mengandung kata "Lab" atau "KaLab"
+                val filtered = originalGuruList.filter {
+                    it.ket_guru.contains("Lab", ignoreCase = true) ||
+                            it.ket_guru.contains("KaLab", ignoreCase = true)
+                }
+                guruAdapter.setData(filtered)
+            }
+            "Guru" -> {
+                // Menyaring guru biasa yang ket_guru isinya "GURU"
+                val filtered = originalGuruList.filter {
+                    it.ket_guru.equals("GURU", ignoreCase = true)
+                }
+                guruAdapter.setData(filtered)
+            }
+            else -> {
+                val filtered = originalGuruList.filter {
+                    it.ket_guru.contains(role, ignoreCase = true)
+                }
+                guruAdapter.setData(filtered)
+            }
         }
     }
 

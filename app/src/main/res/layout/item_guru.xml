@@ -50,12 +50,13 @@
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
+            <!-- Mengganti tvSubGuru menjadi tvKetGuru -->
             <TextView
-                android:id="@+id/tvSubGuru"
+                android:id="@+id/tvKetGuru"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:text="Pengajar / Guru RPL"
+                android:text="Guru"
                 android:textColor="#94A3B8"
                 android:textSize="12sp" />
         </LinearLayout>

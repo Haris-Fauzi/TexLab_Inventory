@@ -26,7 +26,8 @@ class GuruAdapter : RecyclerView.Adapter<GuruAdapter.GuruViewHolder>() {
         } else {
             val searchPattern = query.trim().lowercase()
             for (item in originalList) {
-                if (item.nama_guru.lowercase().contains(searchPattern)) {
+                if (item.nama_guru.lowercase().contains(searchPattern) ||
+                    item.ket_guru.lowercase().contains(searchPattern)) {
                     filteredList.add(item)
                 }
             }
@@ -53,6 +54,7 @@ class GuruAdapter : RecyclerView.Adapter<GuruAdapter.GuruViewHolder>() {
 
         fun bind(guru: Guru) {
             binding.tvNamaGuru.text = guru.nama_guru
+            binding.tvKetGuru.text = guru.ket_guru.ifEmpty { "GURU" }
         }
     }
 }
