@@ -184,8 +184,6 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun setupVideoProfile() {
         val videoUrl = "https://res.cloudinary.com/aayg63qo/video/upload/q_auto,f_auto/v1788267039/vidssave.com_PROFIL_SMK_TEXMACO_SEMARANG_2022_360P.mp4"
-
-        // URL Thumbnail otomatis dari Cloudinary (mengambil frame detik ke-0)
         val thumbnailUrl = "https://res.cloudinary.com/aayg63qo/video/upload/so_7/q_auto,f_jpg/v1788267039/vidssave.com_PROFIL_SMK_TEXMACO_SEMARANG_2022_360P.jpg"
 
         // 1. Muat Thumbnail menggunakan Glide
@@ -193,7 +191,7 @@ class DashboardActivity : AppCompatActivity() {
             .load(thumbnailUrl)
             .into(binding.imgVideoThumbnail)
 
-        // 2. Setup Video URI
+        // 2. Setup Video URI & MediaController
         val videoUri = Uri.parse(videoUrl)
         binding.videoViewProfile.setVideoURI(videoUri)
 
@@ -201,17 +199,23 @@ class DashboardActivity : AppCompatActivity() {
         mediaController.setAnchorView(binding.videoViewProfile)
         binding.videoViewProfile.setMediaController(mediaController)
 
+        // --- FIX BUG OVERLAY SCROLL: Hide controller saat halaman di-scroll ---
+        binding.nestedScrollView.setOnScrollChangeListener { _, _, _, _, _ ->
+            if (mediaController.isShowing) {
+                mediaController.hide()
+            }
+        }
+        // ----------------------------------------------------------------------
+
         // 3. Listener saat video disiapkan
         binding.videoViewProfile.setOnPreparedListener { mediaPlayer ->
-            // Sembunyikan progress loading setelah siap
             binding.pbVideoLoading.visibility = View.GONE
             mediaPlayer.isLooping = true
         }
 
-        // 4. Sembunyikan Thumbnail saat pengguna menekan tombol PLAY
+        // 4. Sembunyikan Thumbnail saat video mulai diputar
         binding.videoViewProfile.setOnInfoListener { _, what, _ ->
             if (what == android.media.MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
-                // Video mulai dirender/diputar, sembunyikan gambar thumbnail
                 binding.imgVideoThumbnail.visibility = View.GONE
                 true
             } else {
