@@ -22,7 +22,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.texlabinventory.data.model.Laptop // Pastikan path model Laptop benar
+import com.example.texlabinventory.data.model.Laptop
 import com.example.texlabinventory.data.utils.CloudinaryHelper
 import com.example.texlabinventory.data.utils.Resource
 import com.example.texlabinventory.databinding.ActivityMainBinding
@@ -33,6 +33,7 @@ import com.example.texlabinventory.ui.adapter.LaptopAdapter
 import com.example.texlabinventory.ui.detail.DetailActivity
 import com.example.texlabinventory.ui.viewModel.LaptopViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore // Import Firestore
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,6 +41,10 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: LaptopViewModel by viewModels()
     private lateinit var laptopAdapter: LaptopAdapter
     private lateinit var toggle: ActionBarDrawerToggle
+
+    // Instance Firestore & Auth
+    private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseFirestore.getInstance()
 
     // Menyimpan Master Data Laptop dari Firebase
     private var allLaptopList: List<Laptop> = emptyList()
@@ -61,6 +66,12 @@ class MainActivity : AppCompatActivity() {
 
         CloudinaryHelper.init(this)
 
+        // 1. Sembunyikan FAB Add Laptop secara default saat activity dibuat
+        binding.fabAddLaptop.visibility = View.GONE
+
+        // 2. Cek Role User untuk Menampilkan FAB khusus Admin
+        checkUserRole()
+
         setupNavigationDrawer()
         setupRecyclerView()
         setupFilterLab()
@@ -72,6 +83,29 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, AddLaptopActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    // Fungsi Pengecekan Role Admin dari Firestore
+    private fun checkUserRole() {
+        val uid = auth.currentUser?.uid ?: return
+
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val role = document.getString("role") ?: "user"
+                    if (role == "admin") {
+                        binding.fabAddLaptop.visibility = View.VISIBLE
+                    } else {
+                        binding.fabAddLaptop.visibility = View.GONE
+                    }
+                } else {
+                    binding.fabAddLaptop.visibility = View.GONE
+                }
+            }
+            .addOnFailureListener {
+                // Jika gagal mengambil data, default sembunyikan FAB demi keamanan
+                binding.fabAddLaptop.visibility = View.GONE
+            }
     }
 
     private fun setupNavigationDrawer() {
@@ -114,7 +148,7 @@ class MainActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
                 R.id.nav_logout -> {
-                    FirebaseAuth.getInstance().signOut()
+                    auth.signOut()
                     Toast.makeText(this, "Berhasil Logout", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this, LoginActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -147,13 +181,11 @@ class MainActivity : AppCompatActivity() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, labOptions)
         binding.spinnerFilterLab.setAdapter(adapter)
 
-        // 1. Tampilkan semua daftar opsi saat diklik tanpa ter-filter teks yang terpilih
         binding.spinnerFilterLab.setOnClickListener {
             adapter.filter.filter(null)
             binding.spinnerFilterLab.showDropDown()
         }
 
-        // 2. Gunakan setText dengan parameter filter = false agar teks terpilih terpasang tanpa memotong daftar adapter
         binding.spinnerFilterLab.setOnItemClickListener { _, _, position, _ ->
             selectedLabFilter = labOptions[position]
             binding.spinnerFilterLab.setText(selectedLabFilter, false)
@@ -169,10 +201,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun applyLabAndSearchFilter() {
         val searchQuery = binding.etSearch.text.toString().trim().lowercase()
-        // Normalisasi input pencarian (menghapus backslash dan strip untuk pembandingan opsional)
         val normalizedSearchQuery = searchQuery.replace("\\", "").replace("-", "")
 
-        // 1. Filter List berdasarkan Lokasi Lab
         val filteredByLab = if (selectedLabFilter == "Semua Lab") {
             allLaptopList
         } else {
@@ -183,10 +213,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 2. Hitung statistik dashboard
         updateDashboardStats(filteredByLab)
 
-        // 3. Filter berdasarkan keyword
         val finalFilteredList = if (searchQuery.isEmpty()) {
             filteredByLab
         } else {
@@ -194,7 +222,6 @@ class MainActivity : AppCompatActivity() {
                 val invId = laptop.inventory_id.orEmpty().lowercase()
                 val normalizedInvId = invId.replace("\\", "").replace("-", "")
 
-                // Cocokkan persis string asli ATAU bentuk yang sudah dinormalisasi
                 invId.contains(searchQuery) ||
                         normalizedInvId.contains(normalizedSearchQuery) ||
                         laptop.brand.orEmpty().lowercase().contains(searchQuery) ||
@@ -203,7 +230,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 4. Update Adapter dan Empty State
         laptopAdapter.updateData(finalFilteredList)
         if (finalFilteredList.isEmpty()) {
             binding.layoutEmptyState.visibility = View.VISIBLE
@@ -225,26 +251,21 @@ class MainActivity : AppCompatActivity() {
             val cleanCondition = laptop.condition.orEmpty().trim()
 
             when {
-                // Prioritas 1: Cek apakah status/kondisi mengandung kata RUSAK
                 cleanCondition.contains("RUSAK", ignoreCase = true) ||
                         cleanStatus.contains("RUSAK", ignoreCase = true) -> rusak++
 
-                // Prioritas 2: Cek status Dipinjam
                 cleanStatus.contains("DIPINJAM", ignoreCase = true) ||
                         cleanStatus.contains("PINJAM", ignoreCase = true) -> dipinjam++
 
-                // Prioritas 3: Cek status Tersedia
                 cleanStatus.contains("TERSEDIA", ignoreCase = true) -> tersedia++
             }
         }
 
-        // 1. Update Teks Angka melalui Direct Binding (Anti-Crash)
         binding.tvCountTotal.text = total.toString()
         binding.tvCountTersedia.text = tersedia.toString()
         binding.tvCountDipinjam.text = dipinjam.toString()
         binding.tvCountRusak.text = rusak.toString()
 
-        // 2. Perhitungan Lebar Garis Visual (Ratio Bar)
         if (total > 0) {
             val pTersedia = binding.barTersedia.layoutParams as LinearLayout.LayoutParams
             pTersedia.weight = tersedia.toFloat()
@@ -326,6 +347,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         binding.navigationView.setCheckedItem(R.id.nav_inventaris)
+        checkUserRole() // Memastikan role diperbarui jika ada perubahan saat aplikasi di-resume
         viewModel.fetchLaptops()
     }
 }

@@ -12,6 +12,8 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.bumptech.glide.Glide
 import com.example.texlabinventory.databinding.ActivityDashboardBinding
 import com.example.texlabinventory.ui.ProfileActivity
@@ -30,7 +32,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-
 class DashboardActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDashboardBinding
@@ -134,6 +135,16 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // --- TAMBAHKAN KODE INI UNTUK MENGATUR WARNA IKON STATUS BAR ---
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        val isNightMode = (resources.configuration.uiMode and
+                android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+
+        // isAppearanceLightStatusBars = true -> Ikon Hitam/Gelap (di Light Mode)
+        // isAppearanceLightStatusBars = false -> Ikon Putih/Terang (di Dark Mode)
+        windowInsetsController.isAppearanceLightStatusBars = !isNightMode
+        // -------------------------------------------------------------
 
         // Set default tanggal hari ini (Format YYYY-MM-DD untuk query database)
         val sdfDisplay = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -584,7 +595,18 @@ class DashboardActivity : AppCompatActivity() {
 
         historyListener = db.collection("peminjaman").addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
+
+            // Total riwayat transaksi (keseluruhan)
             binding.tvTotalHistory.text = snapshot.size().toString()
+
+            // Hitung berapa transaksi yang statusnya masih DIPINJAM (aktif)
+            val totalDipinjamAktif = snapshot.documents.count { doc ->
+                val status = doc.getString("status")
+                status.equals("DIPINJAM", ignoreCase = true)
+            }
+
+            // Tampilkan ke UI
+            binding.tvTotalDipinjam.text = totalDipinjamAktif.toString()
         }
     }
 
@@ -595,6 +617,10 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun setupWindowInsets() {
+        // 1. Mengubah warna background Status Bar menjadi Transparan agar menyatu dengan background utama
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+
+        // 2. Tetap pertahankan padding agar konten tidak tertutup status bar
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
             binding.root.setPadding(0, statusBarHeight, 0, 0)

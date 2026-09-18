@@ -136,7 +136,7 @@
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:contentDescription="Riwayat peminjaman kosong"
-                android:src="@android:drawable/ic_menu_myplaces"
+                android:src="@drawable/icl_warning"
                 app:tint="?android:attr/textColorSecondary" />
 
             <TextView

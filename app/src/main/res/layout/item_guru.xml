@@ -5,9 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
-    app:cardBackgroundColor="#1E1E2E"
+    app:cardBackgroundColor="?attr/colorSurface"
     app:cardCornerRadius="14dp"
-    app:cardElevation="0dp">
+    app:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,7 +30,7 @@
                 android:layout_height="22dp"
                 android:layout_gravity="center"
                 android:contentDescription="Icon Guru"
-                android:src="@android:drawable/ic_menu_myplaces"
+                android:src="@drawable/icl_guru"
                 app:tint="#00A8FF" />
         </androidx.cardview.widget.CardView>
 
@@ -46,7 +46,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Nama Guru"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -57,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
                 android:text="Guru"
-                android:textColor="#94A3B8"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="12sp" />
         </LinearLayout>
 

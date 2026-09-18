@@ -22,9 +22,24 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // 1. Tambahkan konfigurasi penandatanganan (Signing Configs)
+    signingConfigs {
+        create("release") {
+            storeFile = file("D:/Data/TexLab Inventory/aman/key_texlab") // Lokasi file keystore kamu
+            storePassword = "gurutex123"
+            keyAlias = "key_texlab"
+            keyPassword = "gurutex123"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            isShrinkResources = false
+
+            // 2. Terapkan signingConfig release di sini
+            signingConfig = signingConfigs.getByName("release")
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

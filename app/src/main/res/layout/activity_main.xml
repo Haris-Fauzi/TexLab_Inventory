@@ -326,7 +326,7 @@
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:contentDescription="Data kosong"
-                android:src="@android:drawable/ic_menu_search"
+                android:src="@drawable/icl_warning"
                 app:tint="?android:attr/textColorSecondary" />
 
             <TextView

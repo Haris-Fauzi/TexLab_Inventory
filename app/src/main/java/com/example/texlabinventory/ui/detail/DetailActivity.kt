@@ -35,6 +35,7 @@ import com.example.texlabinventory.ui.viewModel.LaptopViewModel
 import com.example.texlabinventory.ui.viewModel.RuangViewModel
 import com.example.texlabinventory.ui.viewModel.SiswaViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.firebase.auth.FirebaseAuth // Import Auth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class DetailActivity : AppCompatActivity() {
@@ -44,6 +45,10 @@ class DetailActivity : AppCompatActivity() {
     private val siswaViewModel: SiswaViewModel by viewModels()
     private val ruangViewModel: RuangViewModel by viewModels()
     private val guruViewModel: GuruViewModel by viewModels()
+
+    // Instance Auth & Firestore
+    private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseFirestore.getInstance()
 
     private var currentLaptop: Laptop? = null
     private var isAutoLoanProcessed = false
@@ -65,6 +70,13 @@ class DetailActivity : AppCompatActivity() {
             view.setPadding(0, statusBarHeight, 0, 0)
             insets
         }
+
+        // 1. Secara default sembunyikan tombol Edit dan Delete saat Activity dibuka
+        binding.btnEdit.visibility = View.GONE
+        binding.btnDelete.visibility = View.GONE
+
+        // 2. Cek Role User untuk Menampilkan Tombol Edit & Delete
+        checkUserRole()
 
         // Ambil data Laptop (Support Android 13+)
         currentLaptop = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -94,6 +106,32 @@ class DetailActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    // Fungsi Pengecekan Role dari Firestore
+    private fun checkUserRole() {
+        val uid = auth.currentUser?.uid ?: return
+
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val role = document.getString("role") ?: "user"
+                    if (role == "admin") {
+                        binding.btnEdit.visibility = View.VISIBLE
+                        binding.btnDelete.visibility = View.VISIBLE
+                    } else {
+                        binding.btnEdit.visibility = View.GONE
+                        binding.btnDelete.visibility = View.GONE
+                    }
+                } else {
+                    binding.btnEdit.visibility = View.GONE
+                    binding.btnDelete.visibility = View.GONE
+                }
+            }
+            .addOnFailureListener {
+                binding.btnEdit.visibility = View.GONE
+                binding.btnDelete.visibility = View.GONE
+            }
     }
 
     private fun setupStatusBarTheme() {
@@ -238,10 +276,8 @@ class DetailActivity : AppCompatActivity() {
         val bindingDialog = DialogPinjamItemBinding.inflate(layoutInflater)
         dialog.setContentView(bindingDialog.root)
 
-        // 1. Transparankan background window dialog
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        // 2. Hilangkan background container bawaan BottomSheetDialog agar sudut rounded bersih
         dialog.setOnShowListener {
             val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
             bottomSheet?.background = null
@@ -252,7 +288,7 @@ class DetailActivity : AppCompatActivity() {
 
         var selectedSiswa: Siswa? = null
 
-        bindingDialog.actvSiswa.threshold = 1 // Diturunkan ke 1 agar pencarian siswa lebih mudah
+        bindingDialog.actvSiswa.threshold = 1
 
         siswaViewModel.siswaState.observe(this) { resource ->
             when (resource) {
@@ -376,8 +412,6 @@ class DetailActivity : AppCompatActivity() {
         guru: String,
         onComplete: (Boolean) -> Unit
     ) {
-        val db = FirebaseFirestore.getInstance()
-
         db.collection("items")
             .whereEqualTo("inventory_id", laptop.inventory_id)
             .get()
@@ -443,13 +477,14 @@ class DetailActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        checkUserRole() // Memastikan role dicek kembali saat activity dipanggil ulang
         currentLaptop?.let {
             refreshDetailData(it.inventory_id)
         }
     }
 
     private fun refreshDetailData(inventoryId: String) {
-        FirebaseFirestore.getInstance().collection("items")
+        db.collection("items")
             .whereEqualTo("inventory_id", inventoryId)
             .get()
             .addOnSuccessListener { querySnapshot ->

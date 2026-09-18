@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Warna saat Tab Aktif (Selected) -> Biru -->
+    <item android:state_selected="true" android:color="#0EA5E9" />
+
+    <!-- Warna saat Tab Tidak Aktif (Unselected) -> Abu-abu Soft -->
+    <item android:color="#94A3B8" />
+</selector>

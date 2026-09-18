@@ -103,12 +103,13 @@ class LoginActivity : AppCompatActivity() {
 
         userRef.get().addOnSuccessListener { document ->
             if (!document.exists()) {
-                // pendaftaran pertama kali: simpan data ke Firestore dengan status isApproved = false
+                // Pendaftaran pertama kali: simpan data ke Firestore dengan status isApproved = false dan role = "user"
                 val userData = hashMapOf(
                     "uid" to uid,
                     "name" to (name ?: "User TexLab"),
                     "email" to (email ?: ""),
                     "isApproved" to false, // Perlu konfirmasi admin di Firebase Console
+                    "role" to "user",       // <--- TAMBAHKAN FIELD INI
                     "createdAt" to FieldValue.serverTimestamp()
                 )
                 userRef.set(userData).addOnSuccessListener {
@@ -119,7 +120,7 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(this, "Gagal menyimpan data: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                // user sudah terdaftar sebelumnya: cek nilai field isApproved
+                // User sudah terdaftar sebelumnya: cek nilai field isApproved
                 val isApproved = document.getBoolean("isApproved") ?: false
                 setLoading(false)
                 if (isApproved) {

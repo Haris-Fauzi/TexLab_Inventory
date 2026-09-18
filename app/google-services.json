@@ -51,6 +51,14 @@
           }
         },
         {
+          "client_id": "1028982155822-tk1kooc0bd0lkc9teqblbbrkbcfccr8v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.texlabinventory",
+            "certificate_hash": "50fbf25af8413b809d02af23cc47bca0b5bb3c9f"
+          }
+        },
+        {
           "client_id": "1028982155822-2qpa99g9ocqgcpldcsahlttfsh19gl9l.apps.googleusercontent.com",
           "client_type": 3
         }

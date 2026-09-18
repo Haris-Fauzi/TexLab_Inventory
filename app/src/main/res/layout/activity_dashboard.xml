@@ -73,26 +73,25 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- KANAN: Foto Profil Pengguna (Google) di dalam CardView -->
+                <!-- KANAN: Foto Profil Pengguna di dalam CardView -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardProfile"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:clickable="true"
                     android:focusable="true"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="18dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="0dp">
 
-                    <!-- ImageView di dalam CardView kanan untuk foto Google -->
                     <ImageView
                         android:id="@+id/ivProfileHeader"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/ic_profile" />
+                        android:src="@drawable/icl_user" />
                 </com.google.android.material.card.MaterialCardView>
 
             </RelativeLayout>
@@ -115,9 +114,9 @@
                     android:layout_margin="6dp"
                     android:clickable="true"
                     android:focusable="true"
-                    app:cardBackgroundColor="?attr/colorPrimary"
+                    app:cardBackgroundColor="#0EA5E9"
                     app:cardCornerRadius="20dp"
-                    app:cardElevation="2dp"
+                    app:cardElevation="0dp"
                     app:strokeWidth="0dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -125,23 +124,32 @@
                         android:layout_height="match_parent"
                         android:padding="14dp">
 
-                        <ImageView
-                            android:id="@+id/iconInv"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:background="@drawable/bg_circle_white_translucent"
-                            android:padding="8dp"
-                            android:src="@drawable/inventory"
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cvIconInv"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            app:cardBackgroundColor="#33FFFFFF"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <ImageView
+                                android:id="@+id/iconInv"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/inventory" />
+                        </com.google.android.material.card.MaterialCardView>
 
                         <TextView
                             android:id="@+id/tvTotalInventaris"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textColor="?attr/colorOnPrimary"
-                            android:textSize="22sp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="28sp"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toTopOf="@id/tvLabelInv"
                             app:layout_constraintStart_toStartOf="parent" />
@@ -151,7 +159,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Total Inventaris"
-                            android:textColor="?attr/colorOnPrimary"
+                            android:textColor="#F0F9FF"
                             android:textSize="12sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent" />
@@ -160,8 +168,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="↗"
-                            android:textColor="?attr/colorOnPrimary"
-                            android:textSize="18sp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent" />
@@ -188,15 +196,24 @@
                         android:layout_height="match_parent"
                         android:padding="14dp">
 
-                        <ImageView
-                            android:id="@+id/iconSiswa"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:background="@drawable/bg_circle_soft_green"
-                            android:padding="8dp"
-                            android:src="@drawable/master_data"
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cvIconSiswa"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            app:cardBackgroundColor="#200284C7"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <ImageView
+                                android:id="@+id/iconSiswa"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/master_data" />
+                        </com.google.android.material.card.MaterialCardView>
 
                         <TextView
                             android:id="@+id/tvTotalSiswa"
@@ -204,7 +221,7 @@
                             android:layout_height="wrap_content"
                             android:text="0"
                             android:textColor="#0369A1"
-                            android:textSize="22sp"
+                            android:textSize="28sp"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toTopOf="@id/tvLabelSiswa"
                             app:layout_constraintStart_toStartOf="parent" />
@@ -224,7 +241,7 @@
                             android:layout_height="wrap_content"
                             android:text="↗"
                             android:textColor="#0369A1"
-                            android:textSize="18sp"
+                            android:textSize="16sp"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent" />
@@ -251,15 +268,24 @@
                         android:layout_height="match_parent"
                         android:padding="14dp">
 
-                        <ImageView
-                            android:id="@+id/iconPinjam"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:background="@drawable/bg_circle_soft_red"
-                            android:padding="8dp"
-                            android:src="@drawable/borrow"
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cvIconPinjam"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            app:cardBackgroundColor="#25D97706"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <ImageView
+                                android:id="@+id/iconPinjam"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/borrow" />
+                        </com.google.android.material.card.MaterialCardView>
 
                         <TextView
                             android:id="@+id/tvTotalDipinjam"
@@ -267,7 +293,7 @@
                             android:layout_height="wrap_content"
                             android:text="0"
                             android:textColor="#B45309"
-                            android:textSize="22sp"
+                            android:textSize="28sp"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toTopOf="@id/tvLabelPinjam"
                             app:layout_constraintStart_toStartOf="parent" />
@@ -287,7 +313,7 @@
                             android:layout_height="wrap_content"
                             android:text="↗"
                             android:textColor="#B45309"
-                            android:textSize="18sp"
+                            android:textSize="16sp"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent" />
@@ -314,15 +340,24 @@
                         android:layout_height="match_parent"
                         android:padding="14dp">
 
-                        <ImageView
-                            android:id="@+id/iconHistory"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:background="@drawable/bg_circle_soft_yellow"
-                            android:padding="8dp"
-                            android:src="@drawable/history"
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cvIconHistory"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            app:cardBackgroundColor="#2516A34A"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <ImageView
+                                android:id="@+id/iconHistory"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/history" />
+                        </com.google.android.material.card.MaterialCardView>
 
                         <TextView
                             android:id="@+id/tvTotalHistory"
@@ -330,7 +365,7 @@
                             android:layout_height="wrap_content"
                             android:text="0"
                             android:textColor="#15803D"
-                            android:textSize="22sp"
+                            android:textSize="28sp"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toTopOf="@id/tvLabelHistory"
                             app:layout_constraintStart_toStartOf="parent" />
@@ -350,7 +385,7 @@
                             android:layout_height="wrap_content"
                             android:text="↗"
                             android:textColor="#15803D"
-                            android:textSize="18sp"
+                            android:textSize="16sp"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent" />
@@ -360,7 +395,6 @@
             </GridLayout>
 
             <!-- 2. CARD GRAFIK LAPTOP LAB -->
-            <!-- Card Grafik Statistik Laptop Lab -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardChart"
                 android:layout_width="match_parent"
@@ -377,32 +411,30 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <!-- Header Judul Grafik -->
                     <TextView
                         android:id="@+id/tvChartTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Statistik Peminjaman Laptop"
                         android:textColor="?android:attr/textColorPrimary"
-                        android:textSize="15sp"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvChartSubtitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="Penggunaan harian unit laptop"
                         android:textColor="?android:attr/textColorSecondary"
-                        android:textSize="11sp" />
+                        android:textSize="12sp" />
 
-                    <!-- Baris Kedua Tombol Filter (Di Bawah Judul) -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:orientation="horizontal">
 
-                        <!-- Tombol Filter 1: Jenis Kategori -->
                         <TextView
                             android:id="@+id/btnFilterLab"
                             android:layout_width="wrap_content"
@@ -413,10 +445,9 @@
                             android:paddingVertical="6dp"
                             android:text="1. Jumlah Laptop per Lab ▾"
                             android:textColor="?attr/colorPrimary"
-                            android:textSize="11sp"
+                            android:textSize="12sp"
                             android:textStyle="bold" />
 
-                        <!-- Tombol Filter 2: Pilih Tanggal -->
                         <TextView
                             android:id="@+id/btnFilterTanggal"
                             android:layout_width="wrap_content"
@@ -426,10 +457,9 @@
                             android:paddingVertical="6dp"
                             android:text="27/08/2026 📅"
                             android:textColor="?android:attr/textColorSecondary"
-                            android:textSize="11sp" />
+                            android:textSize="12sp" />
                     </LinearLayout>
 
-                    <!-- Widget Grafik MPAndroidChart -->
                     <com.github.mikephil.charting.charts.BarChart
                         android:id="@+id/barChartLaptop"
                         android:layout_width="match_parent"
@@ -443,8 +473,8 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:layout_marginTop="12dp"
-                app:cardCornerRadius="14dp"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="0dp">
 
@@ -453,21 +483,18 @@
                     android:layout_height="match_parent"
                     android:background="#000000">
 
-                    <!-- 1. VideoView -->
                     <VideoView
                         android:id="@+id/videoViewProfile"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_gravity="center" />
 
-                    <!-- 2. ImageView untuk Thumbnail / Poster Video -->
                     <ImageView
                         android:id="@+id/imgVideoThumbnail"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop" />
 
-                    <!-- 3. Progress Bar Loading -->
                     <ProgressBar
                         android:id="@+id/pbVideoLoading"
                         android:layout_width="wrap_content"
@@ -480,7 +507,7 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Container Navigasi Bawah Gaya BRImo (5 Menu dengan Floating Scan) -->
+    <!-- Container Navigasi Bawah (5 Menu dengan Floating Scan) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -488,11 +515,10 @@
         android:clipChildren="false"
         android:clipToPadding="false">
 
-        <!-- Bar Navigasi Bawah Utama -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/bottomNavBar"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="56dp"
             app:cardBackgroundColor="?attr/colorSurface"
             app:cardCornerRadius="0dp"
             app:cardElevation="8dp"
@@ -507,7 +533,7 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <!-- 1. Home (Default selected="true" contoh aktif pertama) -->
+                <!-- 1. Home -->
                 <LinearLayout
                     android:id="@+id/btnNavHome"
                     android:layout_width="0dp"
@@ -519,16 +545,16 @@
                     android:orientation="vertical">
 
                     <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/home" />
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/icl_home" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="Home"
-                        android:textColor="@color/nav_item_color"
+                        android:textColor="@color/nav_icon_color"
                         android:textSize="10sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -545,20 +571,20 @@
                     android:orientation="vertical">
 
                     <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/borrow" />
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/icl_swap" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="Peminjaman"
-                        android:textColor="@color/nav_item_color"
+                        android:textColor="@color/nav_icon_color"
                         android:textSize="10sp" />
                 </LinearLayout>
 
-                <!-- 3. Space Kosong Untuk Tombol Floating Scan di Tengah -->
+                <!-- 3. Space Kosong Untuk Tombol Floating Scan -->
                 <View
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -576,16 +602,16 @@
                     android:orientation="vertical">
 
                     <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/inventory" />
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/icl_inventory2" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Inventory"
-                        android:textColor="@color/nav_item_color"
+                        android:text="Inventaris"
+                        android:textColor="@color/nav_icon_color"
                         android:textSize="10sp" />
                 </LinearLayout>
 
@@ -601,23 +627,23 @@
                     android:orientation="vertical">
 
                     <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/master_data" /> <!-- Memakai ikon bawaan sistem Android -->
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/icl_data" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="Master Data"
-                        android:textColor="@color/nav_item_color"
+                        android:textColor="@color/nav_icon_color"
                         android:textSize="10sp" />
                 </LinearLayout>
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Ring Outer Surface (Mempertegas Efek Melayang QRIS) -->
+        <!-- Outer Border Floating Button -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardScanBorder"
             android:layout_width="60dp"

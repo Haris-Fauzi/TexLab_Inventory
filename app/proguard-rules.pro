@@ -19,3 +19,15 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Menjaga model data Firebase agar tidak teracak (Obfuscated) oleh R8
+-keepclassmembers class * {
+    @com.google.firebase.firestore.PropertyName <fields>;
+    @com.google.firebase.firestore.PropertyName <methods>;
+}
+
+# Jaga seluruh class data model di dalam package data
+-keep class com.example.texlabinventory.data.model.** { *; }
+
+# Menjaga agar Firebase SDK dapat membaca class internal secara normal
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
