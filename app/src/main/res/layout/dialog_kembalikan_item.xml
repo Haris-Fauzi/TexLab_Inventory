@@ -24,7 +24,7 @@
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="@drawable/bg_rounded_soft_orange"
+                android:background="@drawable/bg_status_badge2"
                 android:padding="12dp"
                 android:src="@android:drawable/ic_menu_rotate"
                 app:tint="#FF9800" />
