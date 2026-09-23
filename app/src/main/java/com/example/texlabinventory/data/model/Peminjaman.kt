@@ -13,5 +13,6 @@ data class Peminjaman(
     val guruPengajar: String = "",        // Contoh: "Pak Galih"
     val waktuPinjam: Timestamp = Timestamp.now(),
     val waktuKembali: Timestamp? = null,  // null saat dipinjam, terisi saat dikembalikan
+    val chargerStatus: String? = null,
     val status: String = "DIPINJAM"       // DIPINJAM / DIKEMBALIKAN
 )

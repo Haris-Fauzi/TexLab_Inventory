@@ -165,27 +165,26 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
         val dialogBinding = DialogKembalikanItemBinding.inflate(layoutInflater)
         dialog.setContentView(dialogBinding.root)
 
-        // 1. Transparankan background window dialog
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-        // 2. Wajib: Hilangkan background container bawaan BottomSheetDialog
         dialog.setOnShowListener {
-            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            // Mengakses parent view langsung tanpa menggunakan R.id
+            val bottomSheet = dialogBinding.root.parent as? View
             bottomSheet?.background = null
         }
 
-        // Format Tanggal
         val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale("id", "ID"))
         val tglFormatted = item.waktuPinjam?.toDate()?.let { sdf.format(it) } ?: "-"
 
-        // Set Data ke UI via ViewBinding
+        // Binding data
         dialogBinding.tvDialogNamaItem.text = "${item.namaItem ?: "-"} (${item.itemId ?: "-"})"
         dialogBinding.tvDialogPeminjam.text = item.namaSiswa ?: "-"
         dialogBinding.tvDialogKelasNis.text = "${item.kelasSiswa ?: "-"} (${item.siswaId ?: "-"})"
         dialogBinding.tvDialogRuangan.text = item.ruangan ?: "-"
         dialogBinding.tvDialogWaktuPinjam.text = tglFormatted
 
-        // Event Listener Tombol
+        // Tambahkan baris ini untuk menampilkan status charger:
+        dialogBinding.tvDialogChargerStatus.text = item.chargerStatus ?: "Tidak Ada"
+
         dialogBinding.btnDialogBatal.setOnClickListener {
             dialog.dismiss()
         }
