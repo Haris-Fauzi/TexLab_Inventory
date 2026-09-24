@@ -246,8 +246,28 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
             dateRangePicker.show(supportFragmentManager, "DATE_RANGE_PICKER")
 
             dateRangePicker.addOnPositiveButtonClickListener { selection ->
-                tempStartDate = selection.first
-                tempEndDate = selection.second
+                // Mengkonversi nilai UTC dari MaterialDatePicker ke objek Date lokal
+                val utcCalendar = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
+
+                // Set Tanggal Mulai
+                utcCalendar.timeInMillis = selection.first
+                val startCal = java.util.Calendar.getInstance().apply {
+                    set(utcCalendar.get(java.util.Calendar.YEAR),
+                        utcCalendar.get(java.util.Calendar.MONTH),
+                        utcCalendar.get(java.util.Calendar.DAY_OF_MONTH), 0, 0, 0)
+                    set(java.util.Calendar.MILLISECOND, 0)
+                }
+                tempStartDate = startCal.timeInMillis
+
+                // Set Tanggal Akhir
+                utcCalendar.timeInMillis = selection.second
+                val endCal = java.util.Calendar.getInstance().apply {
+                    set(utcCalendar.get(java.util.Calendar.YEAR),
+                        utcCalendar.get(java.util.Calendar.MONTH),
+                        utcCalendar.get(java.util.Calendar.DAY_OF_MONTH), 23, 59, 59)
+                    set(java.util.Calendar.MILLISECOND, 999)
+                }
+                tempEndDate = endCal.timeInMillis
 
                 val sdf = SimpleDateFormat("dd MMM yyyy", Locale("id", "ID"))
                 val startFormatted = sdf.format(Date(tempStartDate!!))
@@ -301,8 +321,10 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
             }
 
             val itemTimestamp = item.waktuPinjam?.toDate()?.time ?: 0L
+
+            // Pencocokan rentang tanggal dengan batas persis (Awal hari s.d Akhir hari)
             val matchesDate = if (selectedStartDate != null && selectedEndDate != null) {
-                itemTimestamp in selectedStartDate!!..(selectedEndDate!! + 86399000L)
+                itemTimestamp in selectedStartDate!!..selectedEndDate!!
             } else {
                 true
             }
