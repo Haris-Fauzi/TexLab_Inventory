@@ -2,6 +2,7 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
@@ -35,15 +36,34 @@
             android:layout_marginStart="14dp"
             android:orientation="vertical">
 
-            <!-- ID Inventaris -->
-            <TextView
-                android:id="@+id/tvInventoryId"
-                android:layout_width="wrap_content"
+            <!-- Container Horizontal khusus Nomor Urut & ID Inventaris -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="C001"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <!-- Nomor Urut -->
+                <TextView
+                    android:id="@+id/tvNoUrut"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="12dp"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface"
+                    tools:text="1." />
+
+                <!-- ID Inventaris -->
+                <TextView
+                    android:id="@+id/tvInventoryId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface"
+                    tools:text="C001" />
+            </LinearLayout>
 
             <!-- Brand & Model -->
             <TextView

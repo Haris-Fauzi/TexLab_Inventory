@@ -34,6 +34,9 @@ class LaptopAdapter(
         val laptop = laptopList[position]
 
         with(holder.binding) {
+            // 0. Nomor Urut (Mulai dari angka 1)
+            tvNoUrut.text = "${position + 1}."
+
             // 1. ID Inventaris
             tvInventoryId.text = laptop.inventory_id
 

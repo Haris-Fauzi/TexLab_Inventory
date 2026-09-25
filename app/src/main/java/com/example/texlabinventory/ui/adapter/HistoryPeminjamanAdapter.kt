@@ -22,6 +22,7 @@ class HistoryPeminjamanAdapter(
         private val dateFormat = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale("id", "ID"))
 
         fun bind(item: Peminjaman) = with(binding) {
+            tvNoUrut.text = "${position + 1}."
             tvNamaItem.text = "${item.namaItem} (${item.itemId})"
             tvNamaSiswa.text = "👤 Peminjam: ${item.namaSiswa} (NIS: ${item.siswaId})"
             tvKelasRuangan.text = "🏫 Kelas: ${item.kelasSiswa} | Ruang: ${item.ruangan}"

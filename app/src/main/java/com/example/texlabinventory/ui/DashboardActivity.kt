@@ -571,10 +571,14 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun observeDashboardData() {
+        // 1. Listener Inventaris/Laptop (HANYA untuk menghitung total unit laptop & memetakan lokasi)
         laptopListener = db.collection("items").addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
+
+            // Total seluruh inventaris laptop
             binding.tvTotalInventaris.text = snapshot.size().toString()
 
+            // Pemetaan lokasi laptop
             itemLocationMap.clear()
             for (doc in snapshot.documents) {
                 val itemId = doc.getString("inventory_id") ?: ""
@@ -585,31 +589,30 @@ class DashboardActivity : AppCompatActivity() {
                 }
             }
 
-            val totalDipinjam = snapshot.documents.count { doc ->
-                val status = doc.getString("status")
-                status.equals("DIPINJAM", ignoreCase = true)
-            }
-            binding.tvTotalDipinjam.text = totalDipinjam.toString()
+            // [FIX] Dihapus: Jangan lagi menghitung totalDipinjam dari koleksi "items"
+            // agar tidak bentrok dengan listener "peminjaman".
         }
 
+        // 2. Listener Siswa
         siswaListener = db.collection("siswa").addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
             binding.tvTotalSiswa.text = snapshot.size().toString()
         }
 
+        // 3. Listener Peminjaman (SINGLE SOURCE OF TRUTH untuk Peminjaman Aktif & Total Riwayat)
         historyListener = db.collection("peminjaman").addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
 
-            // Total riwayat transaksi (keseluruhan)
+            // Total akumulasi seluruh riwayat transaksi
             binding.tvTotalHistory.text = snapshot.size().toString()
 
-            // Hitung berapa transaksi yang statusnya masih DIPINJAM (aktif)
+            // Total transaksi aktif yang statusnya masih DIPINJAM (Sesuai dengan grafik & daftar riwayat)
             val totalDipinjamAktif = snapshot.documents.count { doc ->
                 val status = doc.getString("status")
                 status.equals("DIPINJAM", ignoreCase = true)
             }
 
-            // Tampilkan ke UI
+            // Set nilai ke TextView "Sedang Dipinjam"
             binding.tvTotalDipinjam.text = totalDipinjamAktif.toString()
         }
     }
