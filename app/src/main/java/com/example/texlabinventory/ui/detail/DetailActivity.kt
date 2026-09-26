@@ -436,6 +436,8 @@ class DetailActivity : AppCompatActivity() {
                     "guruPengajar" to guru,
                     "waktuPinjam" to com.google.firebase.Timestamp.now(),
                     "waktuKembali" to null,
+                    "location" to laptop.location,
+                    "chargerStatus" to laptop.charger_status,
                     "status" to "DIPINJAM"
                 )
 

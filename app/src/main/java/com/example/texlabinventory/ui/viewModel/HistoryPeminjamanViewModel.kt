@@ -31,7 +31,10 @@ class HistoryPeminjamanViewModel : ViewModel() {
                 }
 
                 if (snapshot != null) {
-                    val listPeminjaman = snapshot.toObjects(Peminjaman::class.java)
+                    // Mapping manual id dokumen agar tidak bernilai kosong jika tidak di-bind otomatis
+                    val listPeminjaman = snapshot.documents.mapNotNull { doc ->
+                        doc.toObject(Peminjaman::class.java)?.copy(id = doc.id)
+                    }
                     _historyState.value = Resource.Success(listPeminjaman)
                 }
             }
@@ -41,7 +44,7 @@ class HistoryPeminjamanViewModel : ViewModel() {
     fun kembalikanBarang(peminjaman: Peminjaman) {
         _actionState.value = Resource.Loading
 
-        // 1. Cari item di katalog "laptops" atau "items" berdasarkan itemId
+        // 1. Cari item di katalog "items" berdasarkan itemId
         db.collection("items")
             .whereEqualTo("inventory_id", peminjaman.itemId)
             .get()
@@ -57,7 +60,7 @@ class HistoryPeminjamanViewModel : ViewModel() {
                     )
                 )
 
-                // Update status barang di Katalog menjadi TERSEDIA
+                // Update status barang di Katalog menjadi TERSEDIA (Lokasi TIDAK diubah)
                 if (!querySnapshot.isEmpty) {
                     val itemDocRef = querySnapshot.documents[0].reference
                     batch.update(itemDocRef, "status", "TERSEDIA")

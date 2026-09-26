@@ -21,11 +21,15 @@ class HistoryPeminjamanAdapter(
 
         private val dateFormat = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale("id", "ID"))
 
-        fun bind(item: Peminjaman) = with(binding) {
+        fun bind(item: Peminjaman, position: Int) = with(binding) {
             tvNoUrut.text = "${position + 1}."
             tvNamaItem.text = "${item.namaItem} (${item.itemId})"
             tvNamaSiswa.text = "👤 Peminjam: ${item.namaSiswa} (NIS: ${item.siswaId})"
-            tvKelasRuangan.text = "🏫 Kelas: ${item.kelasSiswa} | Ruang: ${item.ruangan}"
+
+            // Menampilkan Kelas, Ruangan Digunakan, dan Lokasi Seharusnya Laptop
+            val lokasiLaptop = item.location?.ifEmpty { "-" } ?: "-"
+            tvKelasRuangan.text = "🏫 Kelas: ${item.kelasSiswa} | Ruang: ${item.ruangan}\n📍 Posisi Penyimpanan Laptop: $lokasiLaptop"
+
             tvGuruPengajar.text = "👨‍🏫 Guru: ${item.guruPengajar}"
 
             val pinjamStr = item.waktuPinjam?.toDate()?.let { dateFormat.format(it) } ?: "-"
@@ -37,16 +41,14 @@ class HistoryPeminjamanAdapter(
                 tvWaktuKembali.visibility = View.VISIBLE
 
                 tvStatusBadge.text = "DIKEMBALIKAN"
-                tvStatusBadge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4CAF50")) // Hijau
+                tvStatusBadge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4CAF50"))
 
-                // Menghapus click listener jika item sudah dikembalikan
                 root.setOnClickListener(null)
             } else {
                 tvWaktuKembali.visibility = View.GONE
                 tvStatusBadge.text = "DIPINJAM"
-                tvStatusBadge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FF9800")) // Oranye
+                tvStatusBadge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FF9800"))
 
-                // Memberikan aksi klik hanya untuk item yang masih dipinjam
                 root.setOnClickListener {
                     onItemClick(item)
                 }
@@ -62,7 +64,7 @@ class HistoryPeminjamanAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position), position)
     }
 
     companion object {

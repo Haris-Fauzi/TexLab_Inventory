@@ -181,9 +181,8 @@ class HistoryPeminjamanActivity : AppCompatActivity() {
         dialogBinding.tvDialogKelasNis.text = "${item.kelasSiswa ?: "-"} (${item.siswaId ?: "-"})"
         dialogBinding.tvDialogRuangan.text = item.ruangan ?: "-"
         dialogBinding.tvDialogWaktuPinjam.text = tglFormatted
-
-        // Tambahkan baris ini untuk menampilkan status charger:
         dialogBinding.tvDialogChargerStatus.text = item.chargerStatus ?: "Tidak Ada"
+        dialogBinding.tvDialogLokasiItem.text = item.location ?: "-"
 
         dialogBinding.btnDialogBatal.setOnClickListener {
             dialog.dismiss()

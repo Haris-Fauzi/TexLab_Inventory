@@ -14,5 +14,6 @@ data class Peminjaman(
     val waktuPinjam: Timestamp = Timestamp.now(),
     val waktuKembali: Timestamp? = null,  // null saat dipinjam, terisi saat dikembalikan
     val chargerStatus: String? = null,
+    val location: String? = "",
     val status: String = "DIPINJAM"       // DIPINJAM / DIKEMBALIKAN
 )

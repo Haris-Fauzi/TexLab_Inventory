@@ -29,17 +29,16 @@ object CloudinaryHelper {
     }
 
     // Fungsi suspend untuk mengunggah gambar dan mengembalikan URL
-    suspend fun uploadImage(imageUri: Uri): String? = suspendCancellableCoroutine { continuation ->
+    // Tambahkan parameter folder dengan default value "laptop_inventory"
+    suspend fun uploadImage(imageUri: Uri, folder: String = "laptop_inventory"): String? = suspendCancellableCoroutine { continuation ->
         MediaManager.get().upload(imageUri)
             .unsigned(UPLOAD_PRESET)
-            .option("folder", "laptop_inventory") // Gambar akan tersimpan otomatis di folder ini
+            .option("folder", folder) // Menggunakan variabel folder
             .callback(object : UploadCallback {
                 override fun onStart(requestId: String?) {}
-
                 override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
 
                 override fun onSuccess(requestId: String?, resultData: Map<*, *>) {
-                    // Ambil secure URL (https) dari respon Cloudinary
                     val secureUrl = resultData["secure_url"] as? String
                     if (continuation.isActive) {
                         continuation.resume(secureUrl)

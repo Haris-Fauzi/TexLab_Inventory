@@ -180,6 +180,7 @@ class DashboardActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         selectMenu(binding.btnNavHome)
+        loadUserProfileHeader()
     }
 
     private fun setupVideoProfile() {
@@ -646,19 +647,60 @@ class DashboardActivity : AppCompatActivity() {
     private fun loadUserProfileHeader() {
         val user = FirebaseAuth.getInstance().currentUser
 
-        val displayName = user?.displayName
-        if (!displayName.isNullOrEmpty()) {
-            binding.tvWelcomeName.text = displayName
-        }
+        if (user != null) {
+            val uid = user.uid
 
-        // Muat Foto Profil Google ke ImageView di sebelah kanan (ivProfileHeader)
-        val photoUrl = user?.photoUrl
-        if (photoUrl != null) {
-            Glide.with(this)
-                .load(photoUrl)
-                .placeholder(R.drawable.ic_profile)
-                .error(R.drawable.ic_profile)
-                .into(binding.ivProfileHeader) // Mengarah ke foto profil di kanan
+            // 1. Coba ambil nama lengkap dari Firestore (Koleksi "users") terlebih dahulu
+            db.collection("users").document(uid).get()
+                .addOnSuccessListener { document ->
+                    val nameFromFirestore = document.getString("nama")
+                        ?: document.getString("name")
+                        ?: document.getString("displayName")
+
+                    if (!nameFromFirestore.isNullOrEmpty()) {
+                        binding.tvWelcomeName.text = nameFromFirestore
+                    } else {
+                        // Fallback 1: Ambil displayName dari Firebase Auth
+                        setWelcomeNameFromAuth(user)
+                    }
+                }
+                .addOnFailureListener {
+                    // Fallback 1 jika query Firestore gagal
+                    setWelcomeNameFromAuth(user)
+                }
+
+            // 2. Muat Foto Profil Google / Custom Foto ke ImageView (ivProfileHeader)
+            val photoUrl = user.photoUrl
+            if (photoUrl != null) {
+                Glide.with(this)
+                    .load(photoUrl)
+                    .placeholder(R.drawable.ic_profile)
+                    .error(R.drawable.ic_profile)
+                    .circleCrop() // Menjadikan foto profil melingkar
+                    .into(binding.ivProfileHeader)
+            }
+        } else {
+            binding.tvWelcomeName.text = "Pengguna"
+        }
+    }
+
+    private fun setWelcomeNameFromAuth(user: com.google.firebase.auth.FirebaseUser) {
+        val displayName = user.displayName
+        val email = user.email
+
+        when {
+            !displayName.isNullOrEmpty() -> {
+                binding.tvWelcomeName.text = displayName
+            }
+            !email.isNullOrEmpty() -> {
+                // Jika nama kosong, ambil karakter sebelum '@' dari email (misal: "galih" dari galih@gmail.com)
+                val usernameFromEmail = email.substringBefore("@")
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                binding.tvWelcomeName.text = usernameFromEmail
+            }
+            else -> {
+                binding.tvWelcomeName.text = "Pengguna"
+            }
         }
     }
 }
