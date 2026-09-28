@@ -240,75 +240,87 @@ class ProfileActivity : AppCompatActivity() {
                 Toast.makeText(this, "Gagal memperbarui Firestore", Toast.LENGTH_SHORT).show()
             }
     }
-     /*
+    /**
      * Menampilkan BottomSheetDialog untuk mengubah Phone, Jurusan, dan Password.
-     * Nama dan Email diset read-only (tidak dapat diubah).
+     * Nama diset read-only (tidak dapat diubah).
      */
-     private fun showEditProfileDialog() {
-         val dialogBinding = DialogEditProfileBinding.inflate(layoutInflater)
-         val dialog = BottomSheetDialog(this)
-         dialog.setContentView(dialogBinding.root)
+    private fun showEditProfileDialog() {
+        val dialogBinding = DialogEditProfileBinding.inflate(layoutInflater)
+        val dialog = BottomSheetDialog(this)
+        dialog.setContentView(dialogBinding.root)
 
-         val currentUser = auth.currentUser
+        val currentUser = auth.currentUser
 
-         // Pre-fill data awal
-         dialogBinding.etEditName.setText(currentName)
-         dialogBinding.etEditPhone.setText(currentPhone)
-         dialogBinding.etEditMajor.setText(currentMajor)
+        // Pre-fill data awal
+        dialogBinding.etEditName.setText(currentName)
+        dialogBinding.etEditPhone.setText(currentPhone)
+        dialogBinding.etEditMajor.setText(currentMajor)
 
-         // Fitur batal
-         dialogBinding.btnCancel.setOnClickListener {
-             dialog.dismiss()
-         }
+        // Fitur batal (menggunakan btnCancel dari layout dialog baru)
+        dialogBinding.btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
 
-         // Fitur simpan
-         dialogBinding.btnSave.setOnClickListener {
-             val newPhone = dialogBinding.etEditPhone.text.toString().trim()
-             val newMajor = dialogBinding.etEditMajor.text.toString().trim()
-             val newPassword = dialogBinding.etEditPassword.text.toString().trim()
+        // Fitur simpan
+        dialogBinding.btnSave.setOnClickListener {
+            val newPhone = dialogBinding.etEditPhone.text.toString().trim()
+            val newMajor = dialogBinding.etEditMajor.text.toString().trim()
+            val newPassword = dialogBinding.etEditPassword.text.toString().trim()
+            val confirmPassword = dialogBinding.etEditConfirmPassword.text.toString().trim()
 
-             if (currentUser != null) {
-                 val updatedData = hashMapOf<String, Any>(
-                     "phone" to newPhone,
-                     "major" to newMajor
-                 )
+            // 1. Validasi Password Baru (jika diisi)
+            if (newPassword.isNotEmpty()) {
+                if (newPassword.length < 6) {
+                    dialogBinding.etEditPassword.error = "Password minimal 6 karakter"
+                    return@setOnClickListener
+                }
+                if (newPassword != confirmPassword) {
+                    dialogBinding.etEditConfirmPassword.error = "Konfirmasi password tidak cocok"
+                    return@setOnClickListener
+                }
+            }
 
-                 db.collection("users").document(currentUser.uid)
-                     .set(updatedData, com.google.firebase.firestore.SetOptions.merge())
-                     .addOnSuccessListener {
-                         binding.tvPhone.text = newPhone
-                         binding.tvMajor.text = newMajor
-                         binding.tvDetailMajor.text = newMajor
+            if (currentUser != null) {
+                val updatedData = hashMapOf<String, Any>(
+                    "phone" to newPhone,
+                    "major" to newMajor
+                )
 
-                         currentPhone = newPhone
-                         currentMajor = newMajor
+                // 2. Simpan Data ke Firestore
+                db.collection("users").document(currentUser.uid)
+                    .set(updatedData, com.google.firebase.firestore.SetOptions.merge())
+                    .addOnSuccessListener {
+                        binding.tvPhone.text = newPhone
+                        binding.tvMajor.text = newMajor
+                        binding.tvDetailMajor.text = newMajor
 
-                         Toast.makeText(this, "Profil berhasil diperbarui", Toast.LENGTH_SHORT).show()
+                        currentPhone = newPhone
+                        currentMajor = newMajor
 
-                         if (newPassword.isNotEmpty()) {
-                             if (newPassword.length < 6) {
-                                 Toast.makeText(this, "Password minimal 6 karakter", Toast.LENGTH_SHORT).show()
-                             } else {
-                                 currentUser.updatePassword(newPassword)
-                                     .addOnSuccessListener {
-                                         Toast.makeText(this, "Password berhasil diperbarui", Toast.LENGTH_SHORT).show()
-                                     }
-                                     .addOnFailureListener { e ->
-                                         Toast.makeText(this, "Gagal ubah password: ${e.message}", Toast.LENGTH_LONG).show()
-                                     }
-                             }
-                         }
+                        // 3. Update Password Firebase Auth jika diisi & valid
+                        if (newPassword.isNotEmpty()) {
+                            currentUser.updatePassword(newPassword)
+                                .addOnSuccessListener {
+                                    Toast.makeText(this, "Profil & Password berhasil diperbarui", Toast.LENGTH_SHORT).show()
+                                    dialog.dismiss()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(this, "Profil tersimpan, tapi gagal ubah password: ${e.message}", Toast.LENGTH_LONG).show()
+                                    dialog.dismiss()
+                                }
+                        } else {
+                            Toast.makeText(this, "Profil berhasil diperbarui", Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "Gagal memperbarui profil: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            }
+        }
 
-                         dialog.dismiss()
-                     }
-                     .addOnFailureListener { e ->
-                         Toast.makeText(this, "Gagal memperbarui profil: ${e.message}", Toast.LENGTH_SHORT).show()
-                     }
-             }
-         }
-
-         dialog.show()
-     }
+        dialog.show()
+    }
 
     private fun setupLogoutButton() {
         binding.btnLogout.setOnClickListener {

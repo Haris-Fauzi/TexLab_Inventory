@@ -13,7 +13,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import com.bumptech.glide.Glide
 import com.example.texlabinventory.databinding.ActivityDashboardBinding
 import com.example.texlabinventory.ui.ProfileActivity
@@ -32,6 +31,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+
 class DashboardActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDashboardBinding
@@ -136,13 +136,11 @@ class DashboardActivity : AppCompatActivity() {
         binding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // --- TAMBAHKAN KODE INI UNTUK MENGATUR WARNA IKON STATUS BAR ---
+        // --- MENGATUR WARNA IKON STATUS BAR ---
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         val isNightMode = (resources.configuration.uiMode and
                 android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
 
-        // isAppearanceLightStatusBars = true -> Ikon Hitam/Gelap (di Light Mode)
-        // isAppearanceLightStatusBars = false -> Ikon Putih/Terang (di Dark Mode)
         windowInsetsController.isAppearanceLightStatusBars = !isNightMode
         // -------------------------------------------------------------
 
@@ -167,12 +165,12 @@ class DashboardActivity : AppCompatActivity() {
         loadRealChartData()
 
         binding.ivProfile.setOnClickListener {
-            val intent = Intent(this, com.example.texlabinventory.ui.ProfileActivity::class.java)
+            val intent = Intent(this, ProfileActivity::class.java)
             startActivity(intent)
         }
 
         binding.cardProfile.setOnClickListener {
-            val intent = Intent(this, com.example.texlabinventory.ui.ProfileActivity::class.java)
+            val intent = Intent(this, ProfileActivity::class.java)
             startActivity(intent)
         }
     }
@@ -180,7 +178,7 @@ class DashboardActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         selectMenu(binding.btnNavHome)
-        loadUserProfileHeader()
+        loadUserProfileHeader() // Melakukan sync ulang profil & foto setiap kali kembali ke Dashboard
     }
 
     private fun setupVideoProfile() {
@@ -206,7 +204,6 @@ class DashboardActivity : AppCompatActivity() {
                 mediaController.hide()
             }
         }
-        // ----------------------------------------------------------------------
 
         // 3. Listener saat video disiapkan
         binding.videoViewProfile.setOnPreparedListener { mediaPlayer ->
@@ -346,7 +343,6 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
-    // --- HELPER LOGIKA TANGGAL ---
     private fun isDateValidForFilter(doc: DocumentSnapshot, isStrictDate: Boolean): Boolean {
         val timestamp = doc.getTimestamp("created_at")
             ?: doc.getTimestamp("waktuPinjam")
@@ -377,7 +373,6 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
-    // 1. FILTER 1: JUMLAH LAPTOP PER LAB
     private fun fetchJumlahLaptopReal() {
         dynamicChartListener = db.collection("items").addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
@@ -420,7 +415,6 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
-    // 2. FILTER 2: KONDISI LAPTOP (Baik vs Rusak)
     private fun fetchKondisiLaptopReal() {
         dynamicChartListener = db.collection("items").addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
@@ -469,7 +463,6 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
-    // 3. FILTER 3: PEMINJAMAN (Khusus di Tanggal Terpilih berdasarkan Lokasi Asli)
     private fun fetchPeminjamanReal() {
         dynamicChartListener = db.collection("peminjaman").addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
@@ -515,7 +508,6 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
-    // 4. PENYESUAIAN GAYA CHART (MENDUKUNG DARK/LIGHT MODE DINAMIS)
     private fun styleChart(chart: BarChart) {
         chart.apply {
             description.isEnabled = false
@@ -572,14 +564,11 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun observeDashboardData() {
-        // 1. Listener Inventaris/Laptop (HANYA untuk menghitung total unit laptop & memetakan lokasi)
         laptopListener = db.collection("items").addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
 
-            // Total seluruh inventaris laptop
             binding.tvTotalInventaris.text = snapshot.size().toString()
 
-            // Pemetaan lokasi laptop
             itemLocationMap.clear()
             for (doc in snapshot.documents) {
                 val itemId = doc.getString("inventory_id") ?: ""
@@ -589,31 +578,23 @@ class DashboardActivity : AppCompatActivity() {
                     itemLocationMap[itemId] = originLocation
                 }
             }
-
-            // [FIX] Dihapus: Jangan lagi menghitung totalDipinjam dari koleksi "items"
-            // agar tidak bentrok dengan listener "peminjaman".
         }
 
-        // 2. Listener Siswa
         siswaListener = db.collection("siswa").addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
             binding.tvTotalSiswa.text = snapshot.size().toString()
         }
 
-        // 3. Listener Peminjaman (SINGLE SOURCE OF TRUTH untuk Peminjaman Aktif & Total Riwayat)
         historyListener = db.collection("peminjaman").addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
 
-            // Total akumulasi seluruh riwayat transaksi
             binding.tvTotalHistory.text = snapshot.size().toString()
 
-            // Total transaksi aktif yang statusnya masih DIPINJAM (Sesuai dengan grafik & daftar riwayat)
             val totalDipinjamAktif = snapshot.documents.count { doc ->
                 val status = doc.getString("status")
                 status.equals("DIPINJAM", ignoreCase = true)
             }
 
-            // Set nilai ke TextView "Sedang Dipinjam"
             binding.tvTotalDipinjam.text = totalDipinjamAktif.toString()
         }
     }
@@ -625,10 +606,8 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun setupWindowInsets() {
-        // 1. Mengubah warna background Status Bar menjadi Transparan agar menyatu dengan background utama
         window.statusBarColor = android.graphics.Color.TRANSPARENT
 
-        // 2. Tetap pertahankan padding agar konten tidak tertutup status bar
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
             binding.root.setPadding(0, statusBarHeight, 0, 0)
@@ -644,15 +623,23 @@ class DashboardActivity : AppCompatActivity() {
         dynamicChartListener?.remove()
     }
 
+    /**
+     * Memuat Nama dan Foto Profil Pengguna di Dashboard.
+     * Mengutamakan data foto & nama dari Firestore (Cloudinary) agar sinkron dengan ProfileActivity.
+     */
     private fun loadUserProfileHeader() {
-        val user = FirebaseAuth.getInstance().currentUser
+        val user = FirebaseAuth.getInstance().currentUser ?: run {
+            binding.tvWelcomeName.text = "Pengguna"
+            return
+        }
 
-        if (user != null) {
-            val uid = user.uid
+        val uid = user.uid
 
-            // 1. Coba ambil nama lengkap dari Firestore (Koleksi "users") terlebih dahulu
-            db.collection("users").document(uid).get()
-                .addOnSuccessListener { document ->
+        // Prioritaskan mengambil data profil & foto dari Firestore
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    // 1. Ambil Nama dari Firestore
                     val nameFromFirestore = document.getString("nama")
                         ?: document.getString("name")
                         ?: document.getString("displayName")
@@ -660,28 +647,43 @@ class DashboardActivity : AppCompatActivity() {
                     if (!nameFromFirestore.isNullOrEmpty()) {
                         binding.tvWelcomeName.text = nameFromFirestore
                     } else {
-                        // Fallback 1: Ambil displayName dari Firebase Auth
                         setWelcomeNameFromAuth(user)
                     }
-                }
-                .addOnFailureListener {
-                    // Fallback 1 jika query Firestore gagal
-                    setWelcomeNameFromAuth(user)
-                }
 
-            // 2. Muat Foto Profil Google / Custom Foto ke ImageView (ivProfileHeader)
-            val photoUrl = user.photoUrl
-            if (photoUrl != null) {
-                Glide.with(this)
-                    .load(photoUrl)
-                    .placeholder(R.drawable.ic_profile)
-                    .error(R.drawable.ic_profile)
-                    .circleCrop() // Menjadikan foto profil melingkar
-                    .into(binding.ivProfileHeader)
+                    // 2. Ambil Foto dari Firestore (Cloudinary)
+                    val photoUrlFromFirestore = document.getString("photoUrl")
+                        ?: document.getString("photo_url")
+
+                    if (!photoUrlFromFirestore.isNullOrEmpty()) {
+                        Glide.with(this)
+                            .load(photoUrlFromFirestore)
+                            .placeholder(R.drawable.ic_profile)
+                            .error(R.drawable.ic_profile)
+                            .circleCrop()
+                            .into(binding.ivProfileHeader)
+                    } else {
+                        // Fallback: Gunakan foto dari Google Auth jika foto Firestore kosong
+                        loadAuthPhoto(user)
+                    }
+                } else {
+                    setWelcomeNameFromAuth(user)
+                    loadAuthPhoto(user)
+                }
             }
-        } else {
-            binding.tvWelcomeName.text = "Pengguna"
-        }
+            .addOnFailureListener {
+                setWelcomeNameFromAuth(user)
+                loadAuthPhoto(user)
+            }
+    }
+
+    private fun loadAuthPhoto(user: com.google.firebase.auth.FirebaseUser) {
+        val authPhotoUrl = user.photoUrl
+        Glide.with(this)
+            .load(authPhotoUrl ?: R.drawable.ic_profile)
+            .placeholder(R.drawable.ic_profile)
+            .error(R.drawable.ic_profile)
+            .circleCrop()
+            .into(binding.ivProfileHeader)
     }
 
     private fun setWelcomeNameFromAuth(user: com.google.firebase.auth.FirebaseUser) {
@@ -693,7 +695,6 @@ class DashboardActivity : AppCompatActivity() {
                 binding.tvWelcomeName.text = displayName
             }
             !email.isNullOrEmpty() -> {
-                // Jika nama kosong, ambil karakter sebelum '@' dari email (misal: "galih" dari galih@gmail.com)
                 val usernameFromEmail = email.substringBefore("@")
                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
                 binding.tvWelcomeName.text = usernameFromEmail
