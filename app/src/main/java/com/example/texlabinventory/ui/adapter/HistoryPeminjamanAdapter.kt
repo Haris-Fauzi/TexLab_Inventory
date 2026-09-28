@@ -28,7 +28,7 @@ class HistoryPeminjamanAdapter(
 
             // Menampilkan Kelas, Ruangan Digunakan, dan Lokasi Seharusnya Laptop
             val lokasiLaptop = item.location?.ifEmpty { "-" } ?: "-"
-            tvKelasRuangan.text = "🏫 Kelas: ${item.kelasSiswa} | Ruang: ${item.ruangan}\n📍 Posisi Penyimpanan Laptop: $lokasiLaptop"
+            tvKelasRuangan.text = "🏫 Kelas: ${item.kelasSiswa} | Ruang: ${item.ruangan}\n📍 Penyimpanan Laptop: $lokasiLaptop"
 
             tvGuruPengajar.text = "👨‍🏫 Guru: ${item.guruPengajar}"
 

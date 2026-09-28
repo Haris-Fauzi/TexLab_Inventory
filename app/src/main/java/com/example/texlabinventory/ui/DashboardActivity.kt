@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import android.widget.MediaController
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
@@ -14,6 +15,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowCompat
 import com.bumptech.glide.Glide
+import com.example.texlabinventory.data.model.UpdateInfo
+import com.example.texlabinventory.data.utils.RemoteConfigHelper
 import com.example.texlabinventory.databinding.ActivityDashboardBinding
 import com.example.texlabinventory.ui.ProfileActivity
 import com.github.mikephil.charting.charts.BarChart
@@ -160,6 +163,8 @@ class DashboardActivity : AppCompatActivity() {
         setupDatePicker()
         setupVideoProfile() // Inisialisasi video profil
         loadUserProfileHeader()
+        // Panggil pengecekan update saat MainActivity dibuka
+        checkApplicationUpdate()
 
         styleChart(binding.barChartLaptop)
         loadRealChartData()
@@ -703,5 +708,46 @@ class DashboardActivity : AppCompatActivity() {
                 binding.tvWelcomeName.text = "Pengguna"
             }
         }
+    }
+
+    private fun checkApplicationUpdate() {
+        RemoteConfigHelper.checkAppUpdate(this) { updateInfo ->
+            if (updateInfo.isUpdateAvailable) {
+                showUpdateDialog(updateInfo)
+            }
+        }
+    }
+
+    private fun showUpdateDialog(updateInfo: UpdateInfo) {
+        val builder = AlertDialog.Builder(this)
+            .setTitle("Pembaruan Tersedia 🚀")
+            .setMessage(
+                "Versi terbaru (${updateInfo.latestVersionName}) telah tersedia di Google Drive. " +
+                        "Silakan perbarui aplikasi untuk menikmati fitur dan perbaikan terbaru."
+            )
+            .setPositiveButton("Update Sekarang") { _, _ ->
+                // Buka browser ke link Google Drive
+                if (updateInfo.updateUrl.isNotEmpty()) {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(updateInfo.updateUrl))
+                    startActivity(intent)
+                }
+            }
+
+        // Jika bukan paksaan (isForceUpdate == false), sediakan tombol Nanti Saja
+        if (!updateInfo.isForceUpdate) {
+            builder.setNegativeButton("Nanti Saja") { dialog, _ ->
+                dialog.dismiss()
+            }
+        }
+
+        val dialog = builder.create()
+
+        // Jika Force Update = true, kunci dialog agar tidak bisa di-back
+        if (updateInfo.isForceUpdate) {
+            dialog.setCancelable(false)
+            dialog.setCanceledOnTouchOutside(false)
+        }
+
+        dialog.show()
     }
 }

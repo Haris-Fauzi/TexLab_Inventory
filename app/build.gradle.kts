@@ -16,8 +16,8 @@ android {
         applicationId = "com.example.texlabinventory"
         minSdk = 24
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -149,4 +149,7 @@ dependencies {
     // Gunakan firebase-appcheck-playintegrity dan firebase-appcheck-debug (atau recaptcha tanpa v3)
     implementation("com.google.firebase:firebase-appcheck-playintegrity")
     implementation("com.google.firebase:firebase-appcheck-debug")
+
+    // Remote Config Library
+    implementation("com.google.firebase:firebase-config-ktx")
 }
