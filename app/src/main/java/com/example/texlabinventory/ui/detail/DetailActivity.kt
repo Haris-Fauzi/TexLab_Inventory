@@ -279,8 +279,9 @@ class DetailActivity : AppCompatActivity() {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         dialog.setOnShowListener {
-            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
-            bottomSheet?.background = null
+            // Mengambil parent view dari root binding dialog
+            val parent = bindingDialog.root.parent as? View
+            parent?.background = null
         }
 
         val itemInfo = "${laptop.inventory_id} - ${laptop.brand} ${laptop.model}".trim()
@@ -378,6 +379,7 @@ class DetailActivity : AppCompatActivity() {
             dialog.dismiss()
         }
 
+        // Tambahkan ProgressBar atau ubah UI tombol saat loading (opsional, atau disable tombol)
         bindingDialog.btnKonfirmasiPinjam.setOnClickListener {
             val ruangan = bindingDialog.actvRuangan.text.toString().trim()
             val guru = bindingDialog.actvGuru.text.toString().trim()
@@ -391,13 +393,25 @@ class DetailActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            // 1. KUNCI TOMBOL & BERIKAN INDIKATOR LOADING
+            bindingDialog.btnKonfirmasiPinjam.isEnabled = false
+            bindingDialog.btnBatalPinjam.isEnabled = false
+            bindingDialog.btnKonfirmasiPinjam.text = "Memproses..."
+
             executeBorrowTransaction(laptop, selectedSiswa!!, ruangan, guru) { success ->
-                if (success) {
-                    Toast.makeText(this, "Peminjaman berhasil dicatat!", Toast.LENGTH_SHORT).show()
-                    dialog.dismiss()
-                    refreshDetailData(laptop.inventory_id)
-                } else {
-                    Toast.makeText(this, "Gagal memproses peminjaman", Toast.LENGTH_SHORT).show()
+                // Pastikan UI thread dijalankan jika callback dari background
+                runOnUiThread {
+                    if (success) {
+                        Toast.makeText(this, "Peminjaman berhasil dicatat!", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                        refreshDetailData(laptop.inventory_id)
+                    } else {
+                        // Buka kembali tombol jika gagal agar bisa dicoba ulang
+                        bindingDialog.btnKonfirmasiPinjam.isEnabled = true
+                        bindingDialog.btnBatalPinjam.isEnabled = true
+                        bindingDialog.btnKonfirmasiPinjam.text = "Konfirmasi Pinjam"
+                        Toast.makeText(this, "Gagal memproses peminjaman", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }

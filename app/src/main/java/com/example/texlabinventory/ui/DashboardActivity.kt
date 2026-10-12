@@ -723,7 +723,7 @@ class DashboardActivity : AppCompatActivity() {
             .setTitle("Pembaruan Tersedia 🚀")
             .setMessage(
                 "Versi terbaru (${updateInfo.latestVersionName}) telah tersedia di Google Drive. " +
-                        "Silakan perbarui aplikasi untuk menikmati fitur dan perbaikan terbaru."
+                        "Silakan perbarui aplikasi untuk menikmati fitur dan perbaikan terbaru. Fix Dupliksi Data"
             )
             .setPositiveButton("Update Sekarang") { _, _ ->
                 // Buka browser ke link Google Drive

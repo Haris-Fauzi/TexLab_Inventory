@@ -131,12 +131,13 @@ class ScanActivity : AppCompatActivity() {
 
             barcodeScanner.process(image)
                 .addOnSuccessListener { barcodes ->
+                    // Cek lagi untuk memastikan belum pernah ke-trigger
                     if (isScanned) return@addOnSuccessListener
 
                     for (barcode in barcodes) {
                         val rawValue = barcode.rawValue
                         if (!rawValue.isNullOrEmpty()) {
-                            isScanned = true
+                            isScanned = true // Langsung set true agar tidak scan berkali-kali
                             sendResultBack(rawValue)
                             break
                         }
